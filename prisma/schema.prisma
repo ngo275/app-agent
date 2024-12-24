@@ -1,0 +1,308 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// This is your updated Prisma schema file,
+// now store-agnostic and accommodating both App Store and Google Play Store.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id             String         @id @default(cuid())
+  name           String?
+  email          String?        @unique
+  emailVerified  DateTime?
+  image          String?
+  createdAt      DateTime       @default(now())
+  accounts       Account[]
+  sessions       Session[]
+  teams          UserTeam[]
+
+  // Stripe subscription fields
+  plan           String         @default("free")
+  stripeId       String?        @unique // Stripe subscription / customer ID
+  subscriptionId String?        @unique // Stripe subscription ID
+  startsAt       DateTime?      // Stripe subscription start date
+  endsAt         DateTime?      // Stripe subscription end date
+}
+
+model Team {
+  id           String        @id @default(cuid())
+  name         String
+  users        UserTeam[]
+  invitations  Invitation[]
+  sentEmails   SentEmail[]
+  apps         App[]         // Holds apps for this team
+
+  // Credentials for App Store Connect
+  appStoreConnectPrivateKey String? // Private key for App Store Connect
+  appStoreConnectKeyId      String? // Key ID for App Store Connect
+  appStoreConnectIssuerId   String? // Issuer ID for App Store Connect
+  appStoreConnectJWT        String?
+  appStoreConnectJWTExpiresAt DateTime?
+
+  // Credentials for Google Play Store
+  googleServiceAccountKey Json? // Service Account Key JSON for Google Play
+
+  // Stripe subscription fields
+  plan           String    @default("free")
+  stripeId       String?   @unique // Stripe customer ID
+  subscriptionId String?   @unique // Stripe subscription ID
+  startsAt       DateTime? // Stripe subscription start date
+  endsAt         DateTime? // Stripe subscription end date
+  canceledAt     DateTime? // Stripe subscription canceled date
+
+  limits    Json?    // Plan limits, e.g., {apps: 1, users: 1}
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+model UserTeam {
+  role   Role   @default(MEMBER)
+  userId String
+  teamId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Invitation {
+  email     String
+  expires   DateTime
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  token     String   @unique
+
+  @@unique([email, teamId])
+}
+
+enum EmailType {
+  FIRST_TRIAL_END_REMINDER_EMAIL
+  FINAL_TRIAL_END_REMINDER_EMAIL
+}
+
+model SentEmail {
+  id         String    @id @default(cuid())
+  type       EmailType
+  recipient  String    // Email address of the recipient
+  marketing  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  teamId     String
+  team       Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+}
+
+enum Store {
+  APPSTORE
+  GOOGLEPLAY
+}
+
+enum Platform {
+  IOS
+  ANDROID
+  MACOS
+  TVOS
+}
+
+model App {
+  id             String    @id @default(cuid())
+  teamId         String
+  team           Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  store          Store
+  platform       Platform
+  storeAppId     String    // App ID in the respective store (e.g., bundle ID or package name)
+  primaryLocale  String?
+
+  // Common fields
+  title            String?  // App name
+  subtitle         String?  // App subtitle (Apple)
+  summary          String?  // App summary (Google)
+  developer        String?
+  developerId      String?
+  developerEmail   String?
+  developerWebsite String?
+  developerAddress String?
+  privacyPolicyUrl String?
+  iconUrl          String?
+  headerImageUrl   String?
+  videoUrl         String?
+  videoImageUrl    String?
+  adSupported      Boolean?
+  containsAds      Boolean?
+  released         DateTime?
+  shortDescription String?
+
+  versions        AppVersion[]
+  localizations   AppLocalization[]
+  asoKeywords     AsoKeyword[]
+
+  isStaged        Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([teamId])
+  @@index([store])
+  @@index([platform])
+  @@unique([store, storeAppId], name: "store_storeAppId")
+}
+
+model AppVersion {
+  id              String    @id @default(cuid())
+  appId           String
+  app             App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  version         String
+  appInfoId       String?   // Reference to the app info record in App Store Connect
+  releaseType     String?
+  state           String?
+  submission      String?
+  platform        Platform
+  minOsVersion    String?   // Minimum OS version required
+
+  // Google Play-specific fields
+  size                   String?
+  installs               String?
+  minInstalls            Int?
+  realInstalls           Int?
+  androidVersion         String?
+  androidVersionText     String?
+  score                  Float?
+  ratings                Int?
+  reviews                Int?
+  histogram              Json?
+  price                  Float?
+  free                   Boolean?
+  currency               String?
+  priceText              String?
+  offersIAP              Boolean?
+  IAPRange               String?
+  contentRating          String?
+  contentRatingDescription String?
+  update                 DateTime?
+
+  localizations   AppLocalization[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([appId, version, platform], name: "appId_version_platform")
+  @@index([appId])
+  @@index([platform])
+}
+
+model AppLocalization {
+  id                    String    @id @default(cuid())
+  appId                 String
+  appVersionId          String
+  app                   App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  appVersion            AppVersion @relation(fields: [appVersionId], references: [id], onDelete: Cascade)
+  locale                String
+  appInfoLocalizationId String?   // Only for App Store Connect
+
+  // Common fields
+  title                 String?
+  subtitle              String?
+  shortDescription      String?
+  fullDescription       String?
+  description           String?
+  keywords              String?
+  promotionalText       String?
+  whatsNew              String?
+  recentChanges         String?
+  privacyPolicyUrl      String?
+  privacyChoicesUrl     String?
+  privacyPolicyText     String?
+  marketingUrl          String?
+  supportUrl            String?
+  videoUrl              String?
+  videoImageUrl         String?
+  screenshots           Json?     // Array of screenshot URLs
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([appVersionId, locale], name: "appVersionId_locale")
+  @@index([appId])
+  @@index([appVersionId])
+  @@index([locale])
+}
+
+model AsoKeyword {
+  id              String    @id @default(cuid())
+  appId           String
+  app             App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  store           Store
+  platform        Platform
+  locale          String
+  keyword         String
+  trafficScore    Float?
+  difficultyScore Float?
+  position        Int?
+  overall         Float?
+  lastCheckedAt   DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([appId, store, platform, locale, keyword])
+  @@index([appId])
+  @@index([store])
+  @@index([platform])
+  @@index([locale])
+  @@index([keyword])
+  @@index([lastCheckedAt])
+}

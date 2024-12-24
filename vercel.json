@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "src/app/api/teams/[teamId]/app-store-connect/import/route.ts": {
+      "memory": 3009
+    },
+    "src/app/api/teams/[teamId]/apps/[appId]/localizations/[locale]/keyword/route.ts": {
+      "memory": 3009
+    },
+    "src/app/api/teams/[teamId]/apps/[appId]/localizations/[locale]/optimization/route.ts": {
+      "memory": 3009
+    }
+  }
+}

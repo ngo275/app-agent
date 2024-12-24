@@ -1,0 +1,120 @@
+# AppAgent
+
+> ASO, Simplified For Everyone.
+
+[AppAgent](https://app-agent.ai) is an open-source alternative to ASO tools, such as App Radar, AppTweak, AppFollow, and Sensor Tower. AppAgent is AI-first and works autonomously.
+
+## Why AppAgent?
+
+Indie devs deserve a tool that doesn't break the bank or require expert-level knowledge. After wrestling with pricey and complex ASO platforms, such as App Radar and Sensor Tower, I realized something simpler was needed—something that just works, autonomously. AppAgent is born out of my frustration and determination to give fellow developers a simple, AI-first, and open-source ASO solution.
+
+By focusing on straightforward optimization, hands-free keyword discovery, and instant localization, I'm aiming to streamline your growth process so you can focus on what you do best: building great apps.
+
+## Features
+
+- **Autonomous keyword research**
+  - No more manual keyword hunting.
+  - Run autonomously, regardless of locales and markets.
+- **AI-powered store optimization**
+  - Instant suggestions based on your app's metadata.
+  - ASO friendly contents generation for all languages.
+  - No expert-level marketing needed, just click and go.
+- **Store synchronization**
+  - AppAgent read/write data to App Store Connect. Google Play is coming soon.
+- **Keyword tracking + self-healing** (Coming soon)
+  - Track your keywords and suggest edits without having you manually read charts.
+
+## Tech Stack
+
+- [Next.js](https://nextjs.org/) – Framework
+- [TypeScript](https://www.typescriptlang.org/) – Language
+- [Tailwind](https://tailwindcss.com/) – CSS
+- [shadcn/ui](https://ui.shadcn.com) - UI Components
+- [Prisma](https://prisma.io) - ORM [![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io)
+- [PostgreSQL](https://www.postgresql.org/) - Database
+- [NextAuth.js](https://next-auth.js.org/) – Authentication
+- [Tinybird](https://tinybird.co) – Analytics
+- [Resend](https://resend.com) – Email
+- [Stripe](https://stripe.com) – Payments
+- [Vercel](https://vercel.com/) – Hosting
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/ngo275/app-agent.git
+```
+
+### 2. Copy .env.sample to .env and change the values
+
+```bash
+cp .env.sample .env
+```
+
+Here's the list of environment variables you need to set:
+
+- `NEXTAUTH_SECRET`
+  - A secret key for NextAuth.js. You can generate a random string using `openssl rand -base64 32`.
+- `NEXTAUTH_URL`
+  - The URL of your app. For example, `http://localhost:3000`.
+- `NEXT_PUBLIC_BASE_URL`
+  - The URL of your app. For example, `http://localhost:3000`.
+- `NEXT_PUBLIC_MARKETING_URL`
+  - The URL of your marketing page. For example, `http://localhost:3000`.
+- `GOOGLE_CLIENT_ID`
+  - The client ID of your Google OAuth application. Used for Google Login.
+- `GOOGLE_CLIENT_SECRET`
+  - The client secret of your Google OAuth application. Used for Google Login.
+- `RESEND_API_KEY`
+  - The API key of your Resend account. Used for sending emails.
+- `TINYBIRD_TOKEN`
+  - The token of your Tinybird account. Used for publishing and reading event data.
+- `OPENAI_API_KEY`
+  - The API key of your OpenAI account. Used for LLM usage.
+- `UPSTASH_REDIS_REST_URL`
+  - The URL of your Upstash account. Used for caching.
+- `UPSTASH_REDIS_REST_TOKEN`
+  - The token of your Upstash account. Used for caching.
+- `NEXT_PUBLIC_FREE_PLAN_ENABLED`
+  - Whether the free plan is enabled. Set to `true` to enable the free plan.
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+  - The publishable key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
+- `STRIPE_SECRET_KEY`
+  - The secret key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
+- `STRIPE_WEBHOOK_SECRET`
+  - The webhook secret of your Stripe account. Used for webhooks. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
+- `STRIPE_PRO_PRICE_ID`
+  - The price ID of your Stripe Pro plan. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
+- `DATABASE_URL`
+  - The URL of your PostgreSQL database. Beside a local machine, you can use [Supabase](https://supabase.com/) or [Neon](https://neon.tech/) for free services.
+
+### 3. Install dependencies
+
+```bash
+yarn
+
+# Or with NPM
+npm install
+```
+
+### 4. Run the development server
+
+```bash
+yarn dev
+
+# Or with NPM
+npm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to see the app.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a PR.
+
+If you'd like to contribute, please fork the repository and submit a PR.
+
+## License
+
+AppAgent is open-source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version. You can find it [here](https://github.com/ngo275/app-agent/blob/main/LICENSE).
