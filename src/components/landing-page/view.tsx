@@ -345,9 +345,11 @@ yarn dev`}
                   href={GITHUB_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block bg-gray-200 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors"
+                  // className="inline-block bg-gray-200 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  {t('view-on-github')}
+                  <Button variant="secondary" size="lg">
+                    {t('view-on-github')}
+                  </Button>
                 </Link>
               </div>
               <ul className="text-left text-gray-700 space-y-2 list-disc list-inside">

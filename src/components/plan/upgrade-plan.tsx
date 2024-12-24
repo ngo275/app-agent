@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
+import { useAnalytics } from '@/lib/analytics';
 
 export default function UpgradePlan() {
   const teamInfo = useTeam();
@@ -25,6 +26,7 @@ export default function UpgradePlan() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('plan');
+  const analytics = useAnalytics();
 
   useEffect(() => {
     if (searchParams?.get('success') === 'true') {
@@ -55,6 +57,10 @@ export default function UpgradePlan() {
     setIsLoading(true);
 
     try {
+      analytics.capture('Upgrade Button Clicked', {
+        teamId: teamInfo?.currentTeam?.id,
+      });
+
       const sessionId = await createCheckoutSession(
         teamInfo?.currentTeam?.id || ''
       );

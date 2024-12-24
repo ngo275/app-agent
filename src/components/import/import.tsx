@@ -33,10 +33,12 @@ import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import { useApp } from '@/context/app';
 import { useTranslations } from 'next-intl';
+import { useAnalytics } from '@/lib/analytics';
 
 export default function ImportApps() {
   const t = useTranslations('import');
   const router = useRouter();
+  const analytics = useAnalytics();
   const appInfo = useApp();
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [selectedApps, setSelectedApps] = useState<string[]>([]);
@@ -94,6 +96,10 @@ export default function ImportApps() {
       }
       await appInfo.refresh();
       toast.success(t('apps-imported-successfully'));
+      analytics.capture('Apps Imported', {
+        teamId: teamInfo?.currentTeam?.id,
+        appIds: selectedApps,
+      });
 
       if (importedStores.length === 1 && selectedStore) {
         const allStores = new Set([...importedStores, selectedStore]);
@@ -298,6 +304,9 @@ export default function ImportApps() {
                 onKeyUploaded={async () => {
                   await refreshKey();
                   await refreshApps();
+                  analytics.capture('Key Uploaded', {
+                    teamId: teamInfo?.currentTeam?.id,
+                  });
                 }}
                 teamId={teamInfo?.currentTeam?.id}
               />

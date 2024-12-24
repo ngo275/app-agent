@@ -48,6 +48,7 @@ import { NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
 import SubmitDialog from './submission/submit-dialog';
 import { AppStoreState } from '@/types/app-store';
 import { useTranslations } from 'next-intl';
+import { useAnalytics } from '@/lib/analytics';
 
 export default function Home() {
   const t = useTranslations('dashboard.app-store-connect.localization');
@@ -59,6 +60,7 @@ export default function Home() {
     refresh: refreshApp,
   } = useApp();
   const teamInfo = useTeam();
+  const analytics = useAnalytics();
   const {
     versionStatus,
     loading: versionStatusLoading,
@@ -177,6 +179,10 @@ export default function Home() {
       );
       setIsStaged(true);
       setHasChanges(false);
+      analytics.capture('Saved Changes', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: currentApp?.id,
+      });
       toast.success(t('changes-saved-successfully'));
     } catch (error) {
       console.error('Failed to save changes:', error);
@@ -198,6 +204,10 @@ export default function Home() {
       await refresh();
       setIsStaged(false);
       setPullUsed(true);
+      analytics.capture('Pulled Latest Version', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: currentApp?.id,
+      });
       toast.success(t('latest-version-pulled-successfully'));
     } catch (error) {
       toast.error(t('failed-to-pull-latest-version'));
@@ -218,6 +228,10 @@ export default function Home() {
       );
       await refresh();
       setIsStaged(false);
+      analytics.capture('Pushed Changes', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: currentApp?.id,
+      });
       toast.success(t('changes-pushed-successfully'));
     } catch (error) {
       toast.error(t('failed-to-push-changes'));
@@ -240,6 +254,10 @@ export default function Home() {
       );
       await versionStatusRefresh();
       await refresh();
+      analytics.capture('Created New Version', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: currentApp?.id,
+      });
       toast.success(t('new-version-created-successfully'));
     } catch (error) {
       if (error instanceof AppStoreConnectVersionConflictError) {

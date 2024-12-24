@@ -26,6 +26,7 @@ import {
 import { toast } from 'react-hot-toast';
 import LoadingOverlay from '@/components/common/loading';
 import { useTranslations } from 'next-intl';
+import { useAnalytics } from '@/lib/analytics';
 
 interface SubmitDialogProps {
   open: boolean;
@@ -45,6 +46,7 @@ export default function SubmitDialog({
   refresh,
 }: SubmitDialogProps) {
   const t = useTranslations('dashboard.app-store-connect.submit');
+  const analytics = useAnalytics();
   const { builds, isLoading, error } = useGetBuilds(appId, versionId);
   const [selectedBuildId, setSelectedBuildId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,6 +73,12 @@ export default function SubmitDialog({
       await refresh();
 
       toast.success(t('success'));
+      analytics.capture('Submitted for Review', {
+        teamId: teamId,
+        appId: appId,
+        versionId: versionId,
+        buildId: selectedBuildId,
+      });
       onOpenChange(false);
     } catch (error) {
       toast.error(t('error'));

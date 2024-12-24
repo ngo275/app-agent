@@ -44,6 +44,7 @@ import GenerateContentsView from '@/components/aso/generate-contents';
 import { IoMdArrowBack } from 'react-icons/io';
 import KeywordGenerationProgress from '@/components/aso/keyword-generation-progress';
 import { useTranslations } from 'next-intl';
+import { useAnalytics } from '@/lib/analytics';
 
 interface ASOModalProps {
   isOpen: boolean;
@@ -63,6 +64,7 @@ export function ASOModal({
   const teamInfo = useTeam();
   const appInfo = useApp();
   const t = useTranslations('aso');
+  const analytics = useAnalytics();
   const asoKeywords = useGetAsoKeywords(appInfo?.currentApp?.id || '', locale);
   const [step, setStep] = useState(0);
   const [keywords, setKeywords] = useState<AsoKeyword[]>([]);
@@ -101,6 +103,11 @@ export function ASOModal({
     setStep(1);
     setEvents([]);
     try {
+      analytics.capture('Keyword Suggestion Started', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: appInfo.currentApp?.id,
+        locale: locale,
+      });
       await suggestKeywords(
         teamInfo.currentTeam.id,
         appInfo.currentApp.id,
@@ -114,6 +121,11 @@ export function ASOModal({
             setKeywords(data.data);
             setIsLoading(false);
             setStep(2);
+            analytics.capture('Keywords Suggested', {
+              teamId: teamInfo?.currentTeam?.id,
+              appId: appInfo.currentApp?.id,
+              locale: locale,
+            });
           }
         }
       );
@@ -160,6 +172,12 @@ export function ASOModal({
     setIsGenerating(true);
     setStep(4);
 
+    analytics.capture('Content Optimization Started', {
+      teamId: teamInfo?.currentTeam?.id,
+      appId: appInfo.currentApp?.id,
+      locale: locale,
+    });
+
     const targets: AsoTarget[] = [];
     if (selectedFields.title) targets.push(AsoTarget.title);
     if (selectedFields.subtitle) targets.push(AsoTarget.subtitle);
@@ -180,6 +198,11 @@ export function ASOModal({
         outline
       );
       setGeneratedContent(result);
+      analytics.capture('Content Optimization Completed', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: appInfo.currentApp?.id,
+        locale: locale,
+      });
       return result;
     } catch (error) {
       toast.error(t('failed-to-optimize-contents'));
@@ -224,6 +247,11 @@ export function ASOModal({
         feedback
       );
       setGeneratedContent(result);
+      analytics.capture('Content Regenerated', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: appInfo.currentApp?.id,
+        locale: locale,
+      });
       return result;
     } catch (error) {
       toast.error(t('failed-to-regenerate-contents'));
@@ -264,6 +292,12 @@ export function ASOModal({
       setKeywords((prev) =>
         prev.map((k) => (k.id === tempKeyword.id ? newKeyword : k))
       );
+      analytics.capture('Keyword Added', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: appInfo.currentApp?.id,
+        locale: locale,
+        keyword: keyword,
+      });
     } catch (error) {
       setKeywords((prev) => prev.filter((k) => k.id !== tempKeyword.id));
       toast.error(t('failed-to-add-keyword'));
@@ -281,6 +315,12 @@ export function ASOModal({
         keywordId
       );
       setKeywords((prev) => prev.filter((k) => k.id !== keywordId));
+      analytics.capture('Keyword Deleted', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: appInfo.currentApp?.id,
+        locale: locale,
+        keywordId: keywordId,
+      });
     } catch (error) {
       toast.error(t('failed-to-delete-keyword'));
     }

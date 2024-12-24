@@ -1,14 +1,14 @@
 # AppAgent
 
-> ASO, Simplified For Everyone.
+> From ASO to Release, All Streamlined.
 
 [AppAgent](https://app-agent.ai) is an open-source alternative to ASO tools, such as App Radar, AppTweak, AppFollow, and Sensor Tower. AppAgent is AI-first and works autonomously.
 
 ## Why AppAgent?
 
-Indie devs deserve a tool that doesn't break the bank or require expert-level knowledge. After wrestling with pricey and complex ASO platforms, such as App Radar and Sensor Tower, I realized something simpler was needed—something that just works, autonomously. AppAgent is born out of my frustration and determination to give fellow developers a simple, AI-first, and open-source ASO solution.
+Thanks to rapid AI advancements, creating an app has never been easier. Yet popular ASO tools (App Radar, AppTweak, Sensor Tower, etc.) remain prohibitively expensive and unnecessarily complex for indie developers and small teams. What’s truly needed is a platform that autonomously handles everything—from multilingual keyword selection to ASO content generation—streamlining not just keywords, but the entire release process.
 
-By focusing on straightforward optimization, hands-free keyword discovery, and instant localization, I'm aiming to streamline your growth process so you can focus on what you do best: building great apps.
+App Store Connect also introduced friction into the release workflow. That’s why I took an AI-first approach and built AppAgent from the ground up, reimagining how ASO and app releases should work together in one seamless, efficient platform.
 
 ## Features
 
@@ -33,7 +33,7 @@ By focusing on straightforward optimization, hands-free keyword discovery, and i
 - [Prisma](https://prisma.io) - ORM [![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io)
 - [PostgreSQL](https://www.postgresql.org/) - Database
 - [NextAuth.js](https://next-auth.js.org/) – Authentication
-- [Tinybird](https://tinybird.co) – Analytics
+- [PostHog](https://posthog.com/) – Analytics
 - [Resend](https://resend.com) – Email
 - [Stripe](https://stripe.com) – Payments
 - [Vercel](https://vercel.com/) – Hosting
@@ -63,13 +63,13 @@ Here's the list of environment variables you need to set:
 - `NEXT_PUBLIC_MARKETING_URL`
   - The URL of your marketing page. For example, `http://localhost:3000`.
 - `GOOGLE_CLIENT_ID`
-  - The client ID of your Google OAuth application. Used for Google Login.
+  - The client ID of your Google OAuth application. Used for Google Login. Not necessary if you don't use Google Login.
 - `GOOGLE_CLIENT_SECRET`
-  - The client secret of your Google OAuth application. Used for Google Login.
+  - The client secret of your Google OAuth application. Used for Google Login. Not necessary if you don't use Google Login.
 - `RESEND_API_KEY`
   - The API key of your Resend account. Used for sending emails.
-- `TINYBIRD_TOKEN`
-  - The token of your Tinybird account. Used for publishing and reading event data.
+- `NEXT_PUBLIC_POSTHOG_KEY`
+  - The key of your PostHog account. Used for analytics. Not necessary if you don't use PostHog.
 - `OPENAI_API_KEY`
   - The API key of your OpenAI account. Used for LLM usage.
 - `UPSTASH_REDIS_REST_URL`
@@ -79,11 +79,11 @@ Here's the list of environment variables you need to set:
 - `NEXT_PUBLIC_FREE_PLAN_ENABLED`
   - Whether the free plan is enabled. Set to `true` to enable the free plan.
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-  - The publishable key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
+  - The publishable key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary (you may need to provide some string value though).
 - `STRIPE_SECRET_KEY`
-  - The secret key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
+  - The secret key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary (you may need to provide some string value though).
 - `STRIPE_WEBHOOK_SECRET`
-  - The webhook secret of your Stripe account. Used for webhooks. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
+  - The webhook secret of your Stripe account. Used for webhooks. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary (you may need to provide some string value though).
 - `STRIPE_PRO_PRICE_ID`
   - The price ID of your Stripe Pro plan. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
 - `DATABASE_URL`

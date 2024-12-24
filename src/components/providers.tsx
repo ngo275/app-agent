@@ -5,6 +5,7 @@ import { TeamProvider } from '@/context/team';
 import { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from 'react-hot-toast';
+import { PostHogCustomProvider } from '@/components/providers/posthog';
 
 export const Providers = ({
   children,
@@ -17,8 +18,10 @@ export const Providers = ({
     <SessionProvider session={session}>
       <TeamProvider>
         <AppProvider>
-          <Toaster position="bottom-right" />
-          {children}
+          <PostHogCustomProvider>
+            <Toaster position="bottom-right" />
+            {children}
+          </PostHogCustomProvider>
         </AppProvider>
       </TeamProvider>
     </SessionProvider>
