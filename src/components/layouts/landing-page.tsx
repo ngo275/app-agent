@@ -61,6 +61,11 @@ export default function LandingPageLayout({
             >
               {t('pricing')}
             </Link>
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={GITHUB_LINK} target="_blank" aria-label="GitHub">
+                <FaGithub className="w-5 h-5" />
+              </Link>
+            </Button>
             <Button variant="default" asChild>
               <Link href="/login">{t('login')}</Link>
             </Button>
