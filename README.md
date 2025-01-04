@@ -4,10 +4,7 @@
 
 [AppAgent](https://app-agent.ai) is an open-source alternative to ASO tools, such as App Radar, AppTweak, AppFollow, and Sensor Tower. AppAgent is AI-first and works autonomously.
 
-<video width="640" height="360" controls autoplay muted loop>
-  <source src="https://assets.app-agent.ai/assets/videos/introduction.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![AppAgent in action](https://assets.app-agent.ai/assets/videos/introduction.gif)
 
 ## Why AppAgent?
 
