@@ -12,13 +12,14 @@ export const NEXT_PUBLIC_POSTHOG_KEY =
 export const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL || '';
 export const UPSTASH_REDIS_REST_TOKEN =
   process.env.UPSTASH_REDIS_REST_TOKEN || '';
-export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
-export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
-export const STRIPE_PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID || ''; // May add more plans in the future
+export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'none';
+export const STRIPE_WEBHOOK_SECRET =
+  process.env.STRIPE_WEBHOOK_SECRET || 'none';
+export const STRIPE_PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID || 'none'; // May add more plans in the future
 export const NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY =
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'none';
 export const NEXT_PUBLIC_FREE_PLAN_ENABLED =
-  process.env.NEXT_PUBLIC_FREE_PLAN_ENABLED || '';
+  process.env.NEXT_PUBLIC_FREE_PLAN_ENABLED || 'none';
 export const BLOCKED_PATHNAMES = [
   '/phpmyadmin',
   '/server-status',

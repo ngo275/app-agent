@@ -4,6 +4,11 @@
 
 [AppAgent](https://app-agent.ai) is an open-source alternative to ASO tools, such as App Radar, AppTweak, AppFollow, and Sensor Tower. AppAgent is AI-first and works autonomously.
 
+<video width="640" height="360" controls autoplay muted loop>
+  <source src="https://assets.app-agent.ai/assets/videos/introduction.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 ## Why AppAgent?
 
 Thanks to rapid AI advancements, creating an app has never been easier. Yet popular ASO tools (App Radar, AppTweak, Sensor Tower, etc.) remain prohibitively expensive and unnecessarily complex for indie developers and small teams. What’s truly needed is a platform that autonomously handles everything—from multilingual keyword selection to ASO content generation—streamlining not just keywords, but the entire release process.
@@ -79,11 +84,11 @@ Here's the list of environment variables you need to set:
 - `NEXT_PUBLIC_FREE_PLAN_ENABLED`
   - Whether the free plan is enabled. Set to `true` to enable the free plan.
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-  - The publishable key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary (you may need to provide some string value though).
+  - The publishable key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
 - `STRIPE_SECRET_KEY`
-  - The secret key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary (you may need to provide some string value though).
+  - The secret key of your Stripe account. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
 - `STRIPE_WEBHOOK_SECRET`
-  - The webhook secret of your Stripe account. Used for webhooks. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary (you may need to provide some string value though).
+  - The webhook secret of your Stripe account. Used for webhooks. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
 - `STRIPE_PRO_PRICE_ID`
   - The price ID of your Stripe Pro plan. Used for payments. If you set `NEXT_PUBLIC_FREE_PLAN_ENABLED` to `true`, this is not necessary.
 - `DATABASE_URL`
@@ -98,7 +103,18 @@ yarn
 npm install
 ```
 
-### 4. Run the development server
+### 4. Set up DB
+
+```bash
+yarn prisma generate
+yarn prisma migrate deploy
+
+# Or with NPM
+npm run prisma generate
+npm run prisma migrate deploy
+```
+
+### 5. Run the development server
 
 ```bash
 yarn dev
