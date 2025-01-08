@@ -18,6 +18,7 @@ export interface Team extends PrismaTeam {
   appStoreConnectPrivateKey: string | null;
   appStoreConnectKeyId: string | null;
   appStoreConnectIssuerId: string | null;
+  plan: string;
   // TODO: add googlePlayCredentials
   users: {
     role: 'ADMIN' | 'MANAGER' | 'MEMBER';

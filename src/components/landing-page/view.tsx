@@ -238,10 +238,12 @@ export default function LandingPageView() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
-              {tCommon(currentFeature?.title)}
+              {currentFeature?.title ? tCommon(currentFeature?.title) : ''}
             </DialogTitle>
             <DialogDescription className="text-gray-700 mt-3">
-              {tCommon(currentFeature?.description)}
+              {currentFeature?.description
+                ? tCommon(currentFeature?.description)
+                : ''}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-2">
