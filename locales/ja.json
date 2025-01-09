@@ -141,10 +141,11 @@
         "release-notes-placeholder": "このバージョンの最新情報の概要を入力してください。肉付けをして他の言語にも自動で翻訳します。",
         "apply-to-all-languages": "すべての言語に適用",
         "add-new-locale": "新しい言語を追加",
-        "add-new-locale-description": "現在の編集内容を保存した上で、新しい言語を追加します。",
+        "add-new-locale-description": "このアクションを実行すると、現在の編集内容も同時に保存されます。",
         "locale": "言語",
         "locale-placeholder": "言語を選択",
         "add-new-locale-button": "言語を追加",
+        "screenshots-note": "スクリーンショットはプライマリー言語のものを利用します。スクリーンショットの自動生成はR&Dの対象です...!",
         "agreement-required": "App Store Connectの契約同意が必要です",
         "agreement-required-description": "続行するには、App Store Connectの契約に同意してください。",
         "agreement-required-note": "注意：同意後、反映に数分かかる場合があります。",
@@ -224,7 +225,9 @@
         "reject-notice": "問題を確認し解決するために、App Store Connectをご確認ください",
         "version-not-up-to-date": "現在AppAgentに保存されているバージョンはApp Store Connectと同期されていません。",
         "pulling": "取得中...",
-        "pull-latest-version": "最新バージョンを取得する"
+        "pull-latest-version": "最新バージョンを取得する",
+        "expand-global-reach": "もっとグローバル対応するのがオススメです！",
+        "add-more-locales-message": "より多くの言語を追加することで、より多くのユーザーにアプリを見つけてもらえるようになります。"
       },
       "submit": {
         "title": "App Storeにリリース",

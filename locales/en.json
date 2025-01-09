@@ -145,6 +145,7 @@
         "locale": "Locale",
         "locale-placeholder": "Select a locale",
         "add-new-locale-button": "Add New Locale",
+        "screenshots-note": "Note: Currently, screenshots from your primary locale will be used. We're doing research on AI-powered screenshot generation for each locale.",
         "agreement-required": "App Store Connect Agreement Required",
         "agreement-required-description": "Please visit App Store Connect to review and accept the latest agreement before continuing.",
         "agreement-required-note": "Note: After accepting the agreement, it may take up to 5 minutes before AppAgent can access your account.",
@@ -224,7 +225,9 @@
         "reject-notice": "Visit App Store Connect to review and resolve the issue",
         "version-not-up-to-date": "The version you are viewing is not up to date with App Store Connect.",
         "pulling": "Pulling...",
-        "pull-latest-version": "Pull Latest Version"
+        "pull-latest-version": "Pull Latest Version",
+        "expand-global-reach": "Expand Your Global Reach",
+        "add-more-locales-message": "Adding more language support can significantly increase your app's visibility and downloads in global markets. Consider adding more languages to maximize your app's exposure."
       },
       "submit": {
         "title": "Release to App Store",

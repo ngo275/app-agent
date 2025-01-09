@@ -11,6 +11,7 @@ import {
   MdCheck,
   MdAdd,
   MdAutoFixHigh,
+  MdInfoOutline,
 } from 'react-icons/md';
 import { addNewLocale, localizeWhatsNew } from '@/lib/swr/version';
 import { useApp } from '@/context/app';
@@ -48,6 +49,7 @@ import { StepNavigation } from '@/components/aso/stepper/step-navigation';
 import { Textarea } from '@/components/ui/textarea';
 import LoadingOverlay from '@/components/common/loading';
 import { useTranslations } from 'next-intl';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface AppLocalizationsProps {
   localizations: {
@@ -164,6 +166,10 @@ export default function AppLocalizations({
     setExpandedLocale(locale);
   };
 
+  const hasLimitedLocales = useMemo(() => {
+    return Object.keys(localizations).length < 10;
+  }, [localizations]);
+
   if (currentStepIndex === 0) {
     return (
       <InitialStep
@@ -220,6 +226,18 @@ export default function AppLocalizations({
       )}
 
       <div className="space-y-4">
+        {hasLimitedLocales && (
+          <Alert className="bg-blue-50 border-blue-200">
+            <MdInfoOutline className="h-5 w-5 text-blue-500" />
+            <AlertTitle className="text-blue-700">
+              {t('expand-global-reach')}
+            </AlertTitle>
+            <AlertDescription className="text-blue-600">
+              {t('add-more-locales-message')}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {Object.entries(localizations).map(
           ([locale, data]) =>
             data.draft && (
@@ -265,6 +283,9 @@ export default function AppLocalizations({
               <DialogTitle>{t('add-new-locale')}</DialogTitle>
               <DialogDescription>
                 {t('add-new-locale-description')}
+                <div className="text-sm text-muted-foreground mt-2">
+                  <p>{t('screenshots-note')}</p>
+                </div>
               </DialogDescription>
             </DialogHeader>
 
