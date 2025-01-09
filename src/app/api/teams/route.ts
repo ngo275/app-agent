@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
           startsAt: true,
           endsAt: true,
           canceledAt: true,
+          createdAt: true,
         },
       });
       teams.push(defaultTeam);
