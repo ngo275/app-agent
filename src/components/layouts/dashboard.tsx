@@ -21,6 +21,16 @@ import {
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo.png';
 import { useTranslations } from 'next-intl';
+import { useTeam } from '@/context/team';
+import { FREE_TRIAL_DAYS, NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
+import { differenceInDays } from 'date-fns';
+
+const getTrialDaysRemaining = (createdAt: Date) => {
+  const trialEndDate = new Date(
+    createdAt.getTime() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000
+  );
+  return Math.max(0, differenceInDays(trialEndDate, new Date()));
+};
 
 export default function DashboardLayout({
   children,
@@ -30,6 +40,7 @@ export default function DashboardLayout({
   const t = useTranslations('layout');
   const { data: session } = useSession();
   const { apps, currentApp, isLoading, setCurrentApp } = useApp();
+  const teamInfo = useTeam();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const {
     versionStatus,
@@ -38,6 +49,14 @@ export default function DashboardLayout({
     isRefreshing: versionStatusIsRefreshing,
     refresh: versionStatusRefresh,
   } = useVersionCheck(currentApp?.id || '');
+
+  const showTrialBanner =
+    NEXT_PUBLIC_FREE_PLAN_ENABLED !== 'true' && teamInfo?.isFreeTrial;
+
+  const trialDaysRemaining =
+    showTrialBanner && teamInfo?.currentTeam?.createdAt
+      ? getTrialDaysRemaining(new Date(teamInfo.currentTeam.createdAt))
+      : 0;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -134,6 +153,23 @@ export default function DashboardLayout({
             </div>
           </div>
         </header>
+
+        {/* Add trial banner here */}
+        {showTrialBanner && trialDaysRemaining > 0 && (
+          <div className="bg-primary px-6 py-2 text-center text-white">
+            <p className="text-sm">
+              {trialDaysRemaining === 1
+                ? t('trial-day-remaining', { days: 1 })
+                : t('trial-days-remaining', { days: trialDaysRemaining })}
+              <Link
+                href="/dashboard/plan"
+                className="ml-2 underline hover:text-white/90"
+              >
+                {t('upgrade-now')}
+              </Link>
+            </p>
+          </div>
+        )}
 
         {/* Main content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">

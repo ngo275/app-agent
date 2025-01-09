@@ -44,7 +44,7 @@ import { AppLocalization } from '@/types/aso';
 import { AppStoreConnectVersionConflictError } from '@/types/errors';
 import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
+import { FREE_TRIAL_DAYS, NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
 import SubmitDialog from './submission/submit-dialog';
 import { AppStoreState } from '@/types/app-store';
 import { useTranslations } from 'next-intl';
@@ -103,12 +103,14 @@ export default function Home() {
 
   useEffect(() => {
     if (NEXT_PUBLIC_FREE_PLAN_ENABLED !== 'true') {
-      // If the team is free, redirect to the plan page
-      if (
-        teamInfo?.currentTeam &&
-        (teamInfo?.currentTeam?.plan === null ||
-          teamInfo?.currentTeam?.plan === 'free')
-      ) {
+      // If the team is free or trial period expired, redirect to the plan page
+      const isFreePlan = teamInfo?.currentTeam?.plan === 'free';
+      const isTrialExpired =
+        teamInfo?.currentTeam?.createdAt &&
+        new Date(teamInfo.currentTeam.createdAt).getTime() +
+          FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000 <
+          Date.now();
+      if (teamInfo?.currentTeam && isFreePlan && isTrialExpired) {
         router.push('/dashboard/plan');
       }
     }

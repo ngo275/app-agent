@@ -35,3 +35,5 @@ export const STRIPE_PRICE_MAPPING = {
     code: 'pro',
   },
 };
+
+export const FREE_TRIAL_DAYS = 7;

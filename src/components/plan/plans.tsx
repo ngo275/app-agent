@@ -86,7 +86,7 @@ export default function Plans() {
               const Icon = feature.icon;
               return (
                 <motion.div
-                  key={t(feature.title)}
+                  key={feature.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: feature.delay, duration: 0.5 }}

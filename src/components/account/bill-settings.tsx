@@ -12,6 +12,7 @@ import { useState } from 'react';
 import LoadingOverlay from '../common/loading';
 import { toast } from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export function BillingSettings() {
   const teamInfo = useTeam();
@@ -50,6 +51,8 @@ export function BillingSettings() {
     }
   };
 
+  const isFree = teamInfo?.currentTeam?.plan === 'free';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -63,15 +66,24 @@ export function BillingSettings() {
             <FaRegCreditCard className="h-5 w-5" />
             <h2 className="text-xl font-semibold">{t('billing')}</h2>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleManageBilling}
-            className="flex items-center space-x-2"
-          >
-            <RiBillLine className="h-4 w-4" />
-            <span>{t('manage-billing')}</span>
-          </Button>
+          {isFree ? (
+            <Button className="flex items-center space-x-2">
+              <RiBillLine className="h-4 w-4" />
+              <Link href="/dashboard/plan">
+                <span>{t('upgrade-plan')}</span>
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManageBilling}
+              className="flex items-center space-x-2"
+            >
+              <RiBillLine className="h-4 w-4" />
+              <span>{t('manage-billing')}</span>
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">

@@ -30,7 +30,7 @@ export function TeamSettings() {
             <FiUsers className="h-5 w-5" />
             <h2 className="text-xl font-semibold">{t('teams')}</h2>
           </div>
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             onClick={() => router.push('/dashboard/teams')}
@@ -38,7 +38,7 @@ export function TeamSettings() {
           >
             <FiSettings className="h-4 w-4" />
             <span>{t('manage-teams')}</span>
-          </Button>
+          </Button> */}
         </CardHeader>
         <CardContent className="space-y-4">
           <div>

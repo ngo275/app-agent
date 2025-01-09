@@ -42,6 +42,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cookies-next": "^5.0.2",
+    "date-fns": "^4.1.0",
     "framer-motion": "^11.11.11",
     "handlebars": "^4.7.8",
     "jose": "^5.9.4",

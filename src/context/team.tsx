@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useTeams } from '@/lib/swr/team';
 import { Team } from '@/types/user';
 import { AppErrorType } from '@/types/errors';
+import { FREE_TRIAL_DAYS } from '@/lib/config';
 
 interface TeamContextProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export type TeamContextType = {
   currentTeam: Team | null;
   isLoading: boolean;
   setCurrentTeam: (team: Team) => void;
+  isFreeTrial: boolean;
 };
 
 export const initialState = {
@@ -30,6 +32,7 @@ export const initialState = {
   currentTeam: null,
   isLoading: false,
   setCurrentTeam: (team: Team) => {},
+  isFreeTrial: false,
 };
 
 const TeamContext = createContext<TeamContextType | null>(initialState);
@@ -54,18 +57,26 @@ export const TeamProvider = ({ children }: TeamContextProps): JSX.Element => {
       ? localStorage.getItem('currentTeamId')
       : null;
 
-  const value = useMemo(
-    () => ({
+  const value = useMemo(() => {
+    const currentTeamValue =
+      (teams || []).find((team: Team) => team.id === currentTeamId) ||
+      (teams || [])[0];
+
+    const isFreeTrial =
+      currentTeamValue?.plan === 'free' &&
+      currentTeamValue?.createdAt &&
+      new Date(currentTeamValue.createdAt).getTime() +
+        FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000 >
+        Date.now();
+
+    return {
       teams: teams || [],
-      currentTeam:
-        (teams || []).find((team: Team) => team.id === currentTeamId) ||
-        (teams || [])[0],
+      currentTeam: currentTeamValue,
       isLoading: loading,
       setCurrentTeam,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [teams, currentTeam, setCurrentTeam, loading, currentTeamId]
-  );
+      isFreeTrial,
+    };
+  }, [teams, currentTeam, setCurrentTeam, loading, currentTeamId]);
 
   return <TeamContext.Provider value={value}>{children}</TeamContext.Provider>;
 };

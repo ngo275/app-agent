@@ -17,6 +17,10 @@ import {
 import Link from 'next/link';
 import { GITHUB_LINK } from '@/lib/constants';
 import { useTranslations } from 'next-intl';
+import { BiGlobe } from 'react-icons/bi';
+import { BsSpeedometer2 } from 'react-icons/bs';
+import { TbApps } from 'react-icons/tb';
+import { IoCheckmarkCircleOutline, IoWarningOutline } from 'react-icons/io5';
 
 const features = [
   {
@@ -185,9 +189,12 @@ export default function LandingPageView() {
       {/* Features Section */}
       <section id="features" className="py-12 md:py-20 px-4">
         <div className="max-w-5xl mx-auto text-center mb-8 md:mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
-            {t('key-features')}
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {t('key-features')}
+            </h2>
+            <div className="w-20 h-1 bg-blue-500 mx-auto rounded-full mb-6" />
+          </div>
           <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             {t('key-features-description')}
           </p>
@@ -238,19 +245,19 @@ export default function LandingPageView() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
-              {currentFeature?.title ? tCommon(currentFeature?.title) : ''}
+              {currentFeature?.title && tCommon(currentFeature?.title)}
             </DialogTitle>
             <DialogDescription className="text-gray-700 mt-3">
-              {currentFeature?.description
-                ? tCommon(currentFeature?.description)
-                : ''}
+              {currentFeature?.description &&
+                tCommon(currentFeature?.description)}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-2">
             <ul className="list-disc list-inside text-gray-700 space-y-2">
-              {currentFeature?.details.map((detail, i) => (
-                <li key={i}>{tCommon(detail)}</li>
-              ))}
+              {currentFeature?.details &&
+                currentFeature?.details.map((detail, i) => (
+                  <li key={i}>{tCommon(detail)}</li>
+                ))}
             </ul>
           </div>
           <div className="mt-6 flex justify-end">
@@ -261,15 +268,111 @@ export default function LandingPageView() {
         </DialogContent>
       </Dialog>
 
+      {/* Who Should Use AppAgent Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-white via-gray-50 to-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {t('who-should-use')}
+            </h2>
+            <div className="w-20 h-1 bg-blue-500 mx-auto rounded-full mb-6" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            {/* Left Column - Use Cases */}
+            <div className="space-y-8">
+              <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <BiGlobe className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {t('global-product')}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {t('global-product-description')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <BsSpeedometer2 className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {t('hands-off-aso')}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {t('hands-off-aso-description')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <TbApps className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {t('automated-updates')}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {t('automated-updates-description')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Perfect Fit Note */}
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-xl shadow-sm border border-blue-100">
+              <div className="flex items-start space-x-4 mb-6">
+                <div className="bg-white p-3 rounded-lg shadow-sm">
+                  <IoCheckmarkCircleOutline className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {t('perfect-fit-note')}
+                </h3>
+              </div>
+
+              <p className="text-gray-700 mb-8 leading-relaxed">
+                {t('perfect-fit-description')}
+              </p>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+                <div className="flex items-center space-x-3 mb-3">
+                  <IoWarningOutline className="w-5 h-5 text-amber-600" />
+                  <h4 className="font-medium text-amber-900">
+                    {t('not-for-you-if')}
+                  </h4>
+                </div>
+                <p className="text-amber-800 leading-relaxed">
+                  {t('aso-focus-description')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Open Source Section */}
       <section
         id="open-source"
         className="py-20 px-4 bg-gradient-to-br from-purple-50 via-white to-blue-50"
       >
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            {t('open-source')}
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {t('open-source')}
+            </h2>
+            <div className="w-20 h-1 bg-blue-500 mx-auto rounded-full mb-6" />
+          </div>
           <p className="text-gray-700 text-lg mb-8 max-w-3xl mx-auto leading-relaxed">
             {t('open-source-description')}
           </p>
@@ -326,9 +429,12 @@ yarn dev`}
       {/* Pricing Section */}
       <section id="pricing" className="py-20 px-4 bg-white">
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            {t('pricing')}
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {t('pricing')}
+            </h2>
+            <div className="w-20 h-1 bg-blue-500 mx-auto rounded-full mb-6" />
+          </div>
           <p className="text-gray-700 text-lg mb-8 leading-relaxed max-w-3xl mx-auto">
             {t('pricing-description')}
           </p>
