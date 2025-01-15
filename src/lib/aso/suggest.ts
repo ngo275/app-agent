@@ -12,14 +12,15 @@ import { scoreKeyword } from './score';
 import { KeywordScore, Store, Platform, AsoKeyword } from '@/types/aso';
 import { AppStoreApp, FIELD_LIMITS } from '@/types/app-store';
 import { getSimilarApps } from '@/lib/app-store/similar-apps';
-import { getApp } from '../app-store/get-app';
-import { generateAsoKeywords } from '../llm/utils/generate-aso-keywords';
+import { getApp } from '@/lib/app-store/get-app';
+import { generateAsoKeywords } from '@/lib/llm/utils/generate-aso-keywords';
 import {
   keywordFinalSanityCheck,
   localeSanityCheck,
-} from '../llm/utils/locale-sanity-check';
-import { sliceKeywords } from '../utils/keyword-slice';
-import { BLACKLIST_KEYWORDS } from './blacklists';
+} from '@/lib/llm/utils/locale-sanity-check';
+import { sliceKeywords } from '@/lib/utils/keyword-slice';
+import { BLACKLIST_KEYWORDS } from '@/lib/aso/blacklists';
+import { hasPublicVersion, publicVersion } from '@/lib/utils/versions';
 
 function storeName(store: Store) {
   return store === 'APPSTORE' ? 'App Store' : 'Google Play';
@@ -38,6 +39,21 @@ export async function suggestKeywords(
 
     const appLocalization = await getAppLocalization(appId, locale);
     const title = appLocalization.title || appLocalization.app?.title || '';
+
+    const appHasPublicVersion = await hasPublicVersion(appId);
+    if (!appHasPublicVersion) {
+      return await changeStrategyAndGenerateKeywords(
+        appId,
+        locale,
+        title,
+        shortDescription,
+        [],
+        store,
+        platform,
+        false,
+        writer
+      );
+    }
 
     // TODO: Make it work for Google Play as well
     writer?.write({

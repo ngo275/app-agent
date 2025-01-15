@@ -67,6 +67,7 @@ export async function POST(
       data.subtitle,
       data.keywords,
       data.description,
+      app.shortDescription || undefined,
       data.descriptionOutline,
       data.previousResult,
       data.userFeedback,

@@ -206,6 +206,9 @@ export async function fetchAppMetadata(
     : [];
 
   if (!publicLatestVersion) {
+    const draftLocalizations = draftLatestVersion
+      ? await fetchAppStoreVersionLocalizations(token, draftLatestVersion.id)
+      : undefined;
     // This app has not been released yet
     return {
       draftAppInfo: draftAppInfo ?? null,
@@ -214,17 +217,20 @@ export async function fetchAppMetadata(
       publicAppInfoLocalizations: publicAppInfoLocalizations,
       publicLatestVersion: null,
       publicLatestLocalizations: [],
+      draftVersion: draftLatestVersion ?? undefined,
+      draftLocalizations: draftLocalizations ?? undefined,
     };
   }
+
+  const draftLocalizations =
+    draftLatestVersion && draftLatestVersion.id !== publicLatestVersion.id
+      ? await fetchAppStoreVersionLocalizations(token, draftLatestVersion.id)
+      : undefined;
 
   const publicLatestLocalizations = await fetchAppStoreVersionLocalizations(
     token,
     publicLatestVersion.id
   );
-  const draftLocalizations =
-    draftLatestVersion && draftLatestVersion.id !== publicLatestVersion.id
-      ? await fetchAppStoreVersionLocalizations(token, draftLatestVersion.id)
-      : undefined;
 
   return {
     draftAppInfo: draftAppInfo ?? null,

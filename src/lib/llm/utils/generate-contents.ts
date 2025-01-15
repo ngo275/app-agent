@@ -1,5 +1,9 @@
 import { AsoKeyword, AsoTarget, Store } from '@/types/aso';
-import { systemPrompt, userPrompt } from '../prompts/optimization';
+import {
+  systemPrompt,
+  userPrompt,
+  userPromptToGenerateDescription,
+} from '../prompts/optimization';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
 import { z } from 'zod';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
@@ -119,4 +123,52 @@ export async function generateContents(
 
   const result = response.choices[0].message.parsed;
   return result || {};
+}
+
+export async function generateDescription(
+  locale: LocaleCode,
+  appName: string,
+  asoKeywords: AsoKeyword[],
+  shortDescription: string,
+  maxDescriptionLength: number,
+  retry?: {
+    prev: string;
+    feedback: string;
+  }
+) {
+  const localeName = getLocaleName(locale);
+  const formattedAsoKeywords = asoKeywords
+    .map((keyword) =>
+      keyword.position && keyword.position > 0
+        ? `"${keyword.keyword}" (rank #${keyword.position})`
+        : `"${keyword.keyword}"`
+    )
+    .join(', ');
+  const userPrompt = userPromptToGenerateDescription.render({
+    locale: localeName,
+    asoKeywords: formattedAsoKeywords,
+    maxDescriptionLength,
+    appName,
+    shortDescription,
+  });
+
+  const messages = [
+    { role: 'user', content: userPrompt.trim() },
+  ] as ChatCompletionMessageParam[];
+
+  if (retry?.prev && retry?.feedback) {
+    messages.push({ role: 'assistant', content: retry.prev });
+    messages.push({ role: 'user', content: retry.feedback });
+  }
+
+  console.log(JSON.stringify(messages, null, 2));
+
+  const response = await openai.chat.completions.create({
+    model: retry ? 'gpt-4o' : 'o1-preview',
+    messages,
+  });
+
+  console.log(response.choices[0].message.content);
+
+  return response.choices[0].message.content || '';
 }

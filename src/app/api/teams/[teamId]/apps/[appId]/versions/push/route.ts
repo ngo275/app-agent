@@ -10,6 +10,7 @@ import {
   updateLocalization,
   upsertLocalizationInfo,
 } from '@/lib/app-store-connect/metadata';
+import { hasPublicVersion } from '@/lib/utils/versions';
 
 export const maxDuration = 60;
 
@@ -85,6 +86,8 @@ export async function POST(
         }
       }
 
+      const appHasPublicVersion = await hasPublicVersion(appId);
+
       return updateLocalization(appStoreConnectJWT, localization.id, {
         // locale: localization.locale || 'en-US',
         description: localization.description || '',
@@ -92,7 +95,8 @@ export async function POST(
         marketingUrl: localization.marketingUrl || '',
         promotionalText: localization.promotionalText || '',
         supportUrl: localization.supportUrl || '',
-        whatsNew: localization.whatsNew || '',
+        // This is not editable in App Store Connect if it is the first public version
+        whatsNew: appHasPublicVersion ? localization.whatsNew || '' : undefined,
       });
     });
 

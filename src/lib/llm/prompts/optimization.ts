@@ -18,6 +18,14 @@ export interface OptimizationUserTemplateData {
   targetContents: string; // e.g., "title", "title, subtitle", "title, description"
 }
 
+export interface OptimizationUserTemplateDataToGenerateDescription {
+  locale: string;
+  asoKeywords: string;
+  shortDescription: string;
+  maxDescriptionLength: number;
+  appName: string;
+}
+
 const systemPromptTemplate = `
 You are a seasoned app marketer specializing App Store Optimization (ASO) in {{locale}}.
 You hold PhD in psychology and linguistics at Stanford University and 
@@ -104,9 +112,28 @@ Include: {{targetContents}}
 Ensure high keyword density by integrating as many target keywords as possible while maintaining a natural, engaging tone.
 `;
 
+const userPromptTemplateToGenerateDescription = `
+Generate ASO friendly app description for my app ({{appName}}) in {{locale}}.
+Target keywords: {{asoKeywords}}
+App short description: {{shortDescription}}
+
+- Use all target keywords naturally and as frequently as possible without keyword stuffing.
+- Incorporate keywords in the opening sentences (important for ASO ranking).
+- Highlight the app's features and benefits while weaving in keywords organically.
+- Close with a call-to-action encouraging downloads.
+- Do not make up facts or include unverified information.
+ 
+The max description length is {{maxDescriptionLength}} characters, so consume this space as much as possible within this limit. Do not use markdown. Just use plain text.
+`;
+
 export const systemPrompt = new TemplateManager<OptimizationSystemTemplateData>(
   systemPromptTemplate
 );
 export const userPrompt = new TemplateManager<OptimizationUserTemplateData>(
   userPromptTemplate
 );
+
+export const userPromptToGenerateDescription =
+  new TemplateManager<OptimizationUserTemplateDataToGenerateDescription>(
+    userPromptTemplateToGenerateDescription
+  );

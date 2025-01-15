@@ -175,3 +175,12 @@ export async function upsertAppStoreConnectLocalization(
     },
   });
 }
+
+export async function hasPublicVersion(appId: string) {
+  const appVersions = await prisma.appVersion.findMany({
+    where: {
+      appId,
+    },
+  });
+  return appVersions.some((v) => publicVersion(v.state || ''));
+}

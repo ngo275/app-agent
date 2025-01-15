@@ -82,7 +82,7 @@ export default function SelectFields({
                     className="h-5 w-5"
                   />
                   <Label className="text-sm font-medium">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                    {t(`${field}-label`)}
                   </Label>
                 </div>
               </div>
