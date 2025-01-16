@@ -6,6 +6,8 @@ import prisma from '@/lib/prisma';
 import { pullLatestVersionFromAppStoreConnect } from '@/lib/app-store-connect/versions';
 import { LocaleCode } from '@/lib/utils/locale';
 
+export const maxDuration = 180;
+
 // Submit a pre-release version for review
 export async function POST(
   request: Request,
