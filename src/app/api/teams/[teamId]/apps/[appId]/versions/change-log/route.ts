@@ -5,6 +5,8 @@ import { AppLocalization, AsoKeyword, Platform, Store } from '@/types/aso';
 import prisma from '@/lib/prisma';
 import { LocaleCode } from '@/lib/utils/locale';
 
+export const maxDuration = 300;
+
 // Localize What's New contents into the all locales at a time.
 export async function POST(
   request: Request,

@@ -8,6 +8,9 @@
     },
     "src/app/api/teams/[teamId]/apps/[appId]/localizations/[locale]/optimization/route.ts": {
       "memory": 3009
+    },
+    "src/app/api/teams/[teamId]/apps/[appId]/versions/change-log/route.ts": {
+      "memory": 3009
     }
   }
 }
