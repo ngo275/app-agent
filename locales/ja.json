@@ -281,6 +281,7 @@
     "checking-access": "アクセスを確認中..."
   },
   "aso": {
+    "beta": "ベータ版",
     "choose-your-action": "アクションを選択",
     "choose-your-action-description": "アプリ情報の更新方法を選んでください",
     "improve-aso": "ASOを改善",
@@ -301,12 +302,24 @@
     "failed-to-regenerate-contents": "コンテンツの再生成に失敗しました。再試行してください。",
     "failed-to-add-keyword": "キーワードの追加に失敗しました。再試行してください。",
     "failed-to-delete-keyword": "キーワードの削除に失敗しました。再試行してください。",
-    "keyword-research": "キーワード選定 - {locale}",
-    "generating-keywords": "キーワード生成中 - {locale}",
-    "confirm-keywords": "キーワードを確認 - {locale}",
-    "select-fields-to-generate": "生成するフィールドを選択 - {locale}",
-    "review-generated-contents": "生成されたコンテンツを確認 - {locale}",
+    "failed-to-add-competitor": "競合アプリの追加に失敗しました。再試行してください。",
+    "failed-to-search-competitors": "競合アプリの検索に失敗しました。再試行してください。",
+    "failed-to-delete-competitor": "競合アプリの削除に失敗しました。再試行してください。",
+    "failed-to-research-competitors": "競合アプリの調査に失敗しました。再試行してください。",
+    "setup-aso-process": "ASOプロセスを設定 ({locale})",
+    "researching-competitors": "競合アプリを調査中 ({locale})",
+    "manage-competitors": "競合アプリを管理 ({locale})",
+    "generating-keywords": "キーワード生成中 ({locale})",
+    "manage-keywords": "キーワードを管理 ({locale})",
+    "select-fields-to-generate": "生成するフィールドを選択 ({locale})",
+    "review-generated-contents": "生成されたコンテンツを確認 ({locale})",
+    "research-again": "再調査",
+    "generate-keywords": "キーワードを生成",
     "confirm-keywords-title": "キーワードを確認",
+    "search-more-competitors": "もっと競合アプリを調査",
+    "search": "検索",
+    "competitor-added-successfully": "競合アプリが追加されました",
+    "competitor-already-added": "選択された競合アプリはすでに追加されています",
     "regenerate-keywords": "キーワードを再生成",
     "confirm-aso-keywords": "ASOキーワードを確認",
     "feedback-for-regeneration": "再生成に対するフィードバック",
@@ -319,8 +332,14 @@
     "error-occurred-during-keyword-generation": "キーワード選定中にエラーが発生しました",
     "try-again": "再試行する",
     "step-index-with-message": "ステップ{index}：{message}",
+    "no-results-found": "見つかりませんでした",
     "event-titles": {
-      "similar-apps-found": "類似アプリが見つかりました",
+      "similar-apps-looked-up": "類似アプリを確認しました",
+      "title-search-results": "タイトルで検索しました",
+      "keyword-search-results": "キーワードで検索しました",
+      "apps-filtered-by-reviews": "レビュー数でフィルタリングしました",
+      "apps-filtered-by-function": "機能でフィルタリングしました",
+      "final-competitors": "競合アプリが確定しました",
       "current-keywords-scored": "現在のキーワードがスコア化されました",
       "high-performing-current-keywords": "パフォーマンスの高い現在のキーワード",
       "more-competitor-apps-found": "キーワードに基づいてさらに多くの競合アプリが見つかりました",
@@ -351,8 +370,8 @@
     "brief-app-description-placeholder": "アプリの簡単な説明を入力...",
     "brief-app-description-help": "より良いキーワード選定のために役立ちます。",
     "brief-app-description-help-2": "事前にアプリの簡単な説明を生成しましたが、ここで編集可能です。",
-    "generating-keywords-button": "キーワード生成中...",
-    "generate-keywords-button": "キーワードを生成"
+    "research-competitors-button": "競合アプリを調査",
+    "researching-competitors-button": "競合アプリを調査中..."
   },
   "account": {
     "account-settings": "アカウント設定",
@@ -388,6 +407,7 @@
   },
   "common": {
     "coming-soon": "開発中",
+    "beta": "ベータ版",
     "benefits": {
       "autonomous-keyword-research": {
         "title": "自律的なキーワード選定",

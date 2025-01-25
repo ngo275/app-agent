@@ -14,6 +14,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 interface KeywordGenerationProgressProps {
   events: any[];
@@ -34,7 +35,7 @@ function getEventTitle(event: any, t: any) {
 
 const eventTitles = {
   log: 'log',
-  similarApps: 'similar-apps-found',
+  similarApps: 'similar-apps-looked-up',
   scoreCurrentKeywords: 'current-keywords-scored',
   highScoringCurrentKeywords: 'high-performing-current-keywords',
   searchApps: 'more-competitor-apps-found',
@@ -56,10 +57,20 @@ const eventTitles = {
 function processEvents(events: any[]) {
   const processedEvents: any[] = [];
   const eventMap: Record<string, any> = {};
+  const seenSteps = new Set<number>();
 
   events
     .filter((event) => event.type !== 'log')
     .forEach((event) => {
+      // Skip duplicate step numbers for completed events
+      if (
+        !event.type.startsWith('start:') &&
+        event.step &&
+        seenSteps.has(event.step)
+      ) {
+        return;
+      }
+
       if (event.type.startsWith('start:')) {
         eventMap[event.type] = {
           ...event,
@@ -68,6 +79,9 @@ function processEvents(events: any[]) {
       } else if (event.type.startsWith('end:')) {
         const startEventType = event.type.replace('end:', 'start:');
         if (eventMap[startEventType]) {
+          if (event.step) {
+            seenSteps.add(event.step);
+          }
           processedEvents.unshift({
             ...event,
             type: event.type.replace('end:', ''),
@@ -75,6 +89,9 @@ function processEvents(events: any[]) {
           });
           delete eventMap[startEventType];
         } else {
+          if (event.step) {
+            seenSteps.add(event.step);
+          }
           processedEvents.unshift(event);
         }
       } else if (event.type === 'process:scoreKeyword') {
@@ -83,18 +100,28 @@ function processEvents(events: any[]) {
           eventMap['start:scoreKeywords'].processData.push(event.data);
         }
       } else {
+        if (event.step) {
+          seenSteps.add(event.step);
+        }
         processedEvents.unshift(event);
       }
     });
 
+  // Add any remaining start events
   Object.values(eventMap).forEach((startEvent) => {
     processedEvents.unshift(startEvent);
   });
 
-  return processedEvents;
+  // Sort events by step number to ensure correct order
+  return processedEvents.sort((a, b) => {
+    // Put start events first for the same step
+    if (a.step === b.step) {
+      return isStartEvent(a.type) ? -1 : 1;
+    }
+    // Sort by step number
+    return (b.step || 0) - (a.step || 0);
+  });
 }
-
-const TOTAL_STEPS = 17;
 
 export default function KeywordGenerationProgress({
   events,
@@ -104,13 +131,25 @@ export default function KeywordGenerationProgress({
   const t = useTranslations('aso');
   const fixedEvents = processEvents(events);
   const hasError = events.some((event) => event.type === 'error');
-  const completedSteps = fixedEvents.filter(
-    (event) => !isStartEvent(event.type) && event.type !== 'error'
-  ).length;
 
-  const progress = isLoading
-    ? Math.min((completedSteps / TOTAL_STEPS) * 100, 100)
-    : 100;
+  // Use useMemo for progress calculation
+  const { currentStep, totalSteps, progress } = useMemo(() => {
+    const latestEvent = events
+      .filter((event) => !event.type.startsWith('start:'))
+      .findLast((event) => event.step && event.totalSteps);
+
+    const step = latestEvent?.step || 0;
+    const total = latestEvent?.totalSteps || 4;
+    const calculatedProgress = isLoading
+      ? Math.min((step / total) * 100, 100)
+      : 100;
+
+    return {
+      currentStep: step,
+      totalSteps: total,
+      progress: calculatedProgress,
+    };
+  }, [events, isLoading]);
 
   return (
     <motion.div
@@ -190,14 +229,14 @@ export default function KeywordGenerationProgress({
                               )}
                             >
                               {t('step-index-with-message', {
-                                index: completedSteps - index + 1,
+                                index: event.step || 1,
                                 message: event.message,
                               })}
                             </span>
                           ) : (
                             <span className="text-sm">
                               {t('step-index-with-message', {
-                                index: completedSteps - index + 1,
+                                index: event.step || 1,
                                 message: getEventTitle(event, t),
                               })}
                               {event.data?.length

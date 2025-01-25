@@ -21,6 +21,7 @@ import { BiGlobe } from 'react-icons/bi';
 import { BsSpeedometer2 } from 'react-icons/bs';
 import { TbApps } from 'react-icons/tb';
 import { IoCheckmarkCircleOutline, IoWarningOutline } from 'react-icons/io5';
+import { Badge } from '@/components/ui/badge';
 
 const features = [
   {
@@ -31,6 +32,7 @@ const features = [
       'benefits.autonomous-keyword-research.details-2',
       'benefits.autonomous-keyword-research.details-3',
     ],
+    beta: true,
     icon: FiSearch,
   },
   {
@@ -41,6 +43,7 @@ const features = [
       'benefits.ai-powered-store-optimization.details-2',
       'benefits.ai-powered-store-optimization.details-3',
     ],
+    beta: true,
     icon: ImMagicWand,
   },
   {
@@ -199,20 +202,29 @@ export default function LandingPageView() {
             {t('key-features-description')}
           </p>
         </div>
-        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-start">
           {features.map((feature, idx) => {
             const Icon = feature.icon;
             return (
               <button
                 key={idx}
                 onClick={() => openFeatureModal(idx)}
-                className="bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-md transition-all text-left w-full hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                className="bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-md transition-all text-left w-full hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 h-full flex"
               >
-                <div className="relative">
-                  {idx === 3 && (
+                <div className="relative w-full">
+                  {idx === 3 ? (
                     <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
                       {tCommon('coming-soon')}
                     </span>
+                  ) : (
+                    feature.beta && (
+                      <Badge
+                        variant="secondary"
+                        className="absolute -top-2 -right-2 bg-blue-100 text-blue-700 hover:bg-blue-100"
+                      >
+                        {tCommon('beta')}
+                      </Badge>
+                    )
                   )}
                   <div className="mb-3 md:mb-4 inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-100">
                     <Icon className="text-gray-700 w-5 h-5 md:w-6 md:h-6" />

@@ -5,6 +5,7 @@ import {
   Platform as PrismaPlatform,
   Store as PrismaStore,
   AsoKeyword as PrismaAsoKeyword,
+  Competitor as PrismaCompetitor,
 } from '@prisma/client';
 
 export enum AsoTarget {
@@ -41,9 +42,11 @@ export type AppVersion = PrismaAppVersion & {
 };
 export type AppLocalization = PrismaAppLocalization & {
   appVersion?: AppVersion;
+  app?: App;
 };
 export type Store = PrismaStore;
 export type Platform = PrismaPlatform;
 export type AsoKeyword = PrismaAsoKeyword & {
   app?: App;
 };
+export type Competitor = PrismaCompetitor;

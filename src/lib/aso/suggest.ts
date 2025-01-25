@@ -21,6 +21,7 @@ import {
 import { sliceKeywords } from '@/lib/utils/keyword-slice';
 import { BLACKLIST_KEYWORDS } from '@/lib/aso/blacklists';
 import { hasPublicVersion, publicVersion } from '@/lib/utils/versions';
+import { getAppLocalization } from './keyword-hunt/utils';
 
 function storeName(store: Store) {
   return store === 'APPSTORE' ? 'App Store' : 'Google Play';
@@ -420,33 +421,6 @@ async function generateAsoKeywordsAndScore(
   writer?.write({ type: 'end:scoreKeywords', data: keywordScores });
 
   return keywordScores;
-}
-
-async function getAppLocalization(appId: string, locale: LocaleCode) {
-  const appLocalization = await prisma.appLocalization.findFirst({
-    where: {
-      appId,
-      locale,
-      appVersion: {
-        state: {
-          in: ['PREPARE_FOR_SUBMISSION', 'REJECTED'],
-        },
-      },
-    },
-    include: {
-      app: true,
-      appVersion: true,
-    },
-    orderBy: {
-      updatedAt: 'desc',
-    },
-  });
-
-  if (!appLocalization) {
-    throw new AppNotFoundError(`App localization ${appId} ${locale} not found`);
-  }
-
-  return appLocalization;
 }
 
 async function processCurrentKeywords(

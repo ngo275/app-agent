@@ -8,6 +8,7 @@ import {
 import { Step } from './steps';
 import { StepIndicator } from './step-indicator';
 import { useTranslations } from 'next-intl';
+import { Badge } from '@/components/ui/badge';
 
 interface InitialStepProps {
   steps: Step[];
@@ -41,7 +42,17 @@ export function InitialStep({
               onClick={() => setCurrentStepIndex(index + 1)}
             >
               <CardHeader>
-                <div className="mb-4 text-blue-500">{step.icon}</div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="text-blue-500">{step.icon}</div>
+                  {step.beta && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-blue-100 text-blue-700 hover:bg-blue-100"
+                    >
+                      {t('beta')}
+                    </Badge>
+                  )}
+                </div>
                 <CardTitle>{t(step.title)}</CardTitle>
                 <CardDescription>{t(step.description)}</CardDescription>
               </CardHeader>

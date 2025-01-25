@@ -43,5 +43,5 @@ export async function rerankKeywords(
     locale,
     keywords
   );
-  return result?.keywords.map((keyword) => keyword.toLowerCase().trim()) || [];
+  return result?.map((keyword) => keyword.toLowerCase().trim()) || [];
 }

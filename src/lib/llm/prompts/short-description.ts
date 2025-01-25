@@ -7,6 +7,7 @@ export interface ShortDescriptionUserTemplateData {
 
 const shortDescriptionSystemPromptTemplate = `
 Generate a concise description (ONE SENTENCE) for the given app in the same language as the provided app information.
+Focus on the main feature of the app.
 `;
 
 const shortDescriptionUserPromptTemplate = `

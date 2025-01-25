@@ -1,3 +1,5 @@
+import { TemplateManager } from '../utils/template-manager';
+
 export const appFilteringSystemPrompt = `
 As an App Store Optimization (ASO) expert, you are provided with a short app description and a list of other apps' titles (with optional subtitles).
 Your task is to identify which of the apps in the provided list are competitors to the given app description and return the indices of these competitor apps.
@@ -63,13 +65,25 @@ fitness solution
 - Prioritize phrases that appear frequently.
 `;
 
+export const keywordExtractionFromTitleAndDescriptionSystemPrompt = `
+You are an expert in App Store Optimization (ASO).
+
+[TASK]
+1. Analyze the target app's title and description (the first 500 characters of the description) based on the provided locale.
+2. Suggest possible ASO keywords that the target app is using.
+
+[NOTE]
+- Important keywords are the ones that are used in the title and tagline in the app description (if any).
+- The keywords should be in the specified locale.
+`;
+
 export const keywordRerankingSystemPrompt = `
 You are an expert in App Store Optimization (ASO).
 Select the best keywords or key phrases from a given list to optimize App Store visibility of the target app.
 
 # Steps
 
-1. **Analyze the Target App**: Carefully read the target app's title and description. Identify the core purpose, target audience, and unique features of the app.
+1. **Analyze the Target App**: Carefully read the target app's title and description. Identify the core purpose, target audience, target language, and unique features of the app.
 
 2. **Identify Valuable Keywords**: Review the provided list of keywords or key phrases. Select keywords that are relevant, focused, and have a good potential for user traffic. Prefer terms that are frequently used in the provided list because they are aggregated keywords of competitor apps. Prioritize the keywords in the same locale. If the locale is spanish, prioritize spanish keywords because people search apps in the same language.
   
@@ -125,26 +139,30 @@ Select all the keywords that can be used by users in the target language to sear
 Return the indices of the keywords that can be used by users in the target language.
 `;
 
-export const keywordGenerationSystemPrompt = `
+interface KeywordGenerationSystemPromptProps {
+  locale: string;
+}
+
+const keywordGenerationSystemPrompt = `
 You are an App Store Optimization (ASO) expert with deep knowledge of keyword optimization for the App Store and Google Play Store.
 Your goal is to generate a list of relevant, high-impact keywords that will help maximize organic app visibility. 
-These keywords should be based on the app's features, purpose, and potential users, even if the target audience is not explicitly provided.
 
 # Instructions
 
-1. Use the app name and short description to understand the app's primary purpose, unique features, and value propositions.
-2. If the target audience is not provided, infer it by analyzing:
-  - The app's primary function (e.g., educational tools likely target students or professionals).
-  - The benefits outlined (e.g., time-saving apps target busy individuals).
-  - The features (e.g., language learning apps appeal to students, travelers, or multilingual professionals).
-3. Create keywords for:
+1. Use the app name and short description in the user message to understand the app's primary purpose, unique features, and value propositions.
+2. Create keywords for:
   - Core Keywords: Words and phrases directly describing the app's primary purpose and features.
   - Audience-Focused Keywords: Words related to user needs, pain points, or objectives that the app solves.
   - Feature-Specific Keywords: Highlight unique technologies, tools, or functionalities.
   - Synonyms and Related Phrases: Broaden keyword scope with relevant terms and alternatives.
-4. Tailor the concise and yet strong keywords for the target language/market (e.g., Spanish, English, etc.), ensuring cultural and linguistic relevance.
+3. Tailor the concise and yet strong keywords for {{locale}} speakers, ensuring cultural and linguistic relevance.
 
 # Output
 - Return the list of keywords in a list format.
+- Keywords should be in {{locale}}.
 - Return 16 keywords.
 `;
+export const keywordGenerationUserPrompt =
+  new TemplateManager<KeywordGenerationSystemPromptProps>(
+    keywordGenerationSystemPrompt
+  );

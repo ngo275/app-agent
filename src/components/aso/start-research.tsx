@@ -45,8 +45,8 @@ export default function StartResearch({
           disabled={!shortDescription.trim() || isLoading}
         >
           {isLoading
-            ? t('generating-keywords-button')
-            : t('generate-keywords-button')}
+            ? t('researching-competitors-button')
+            : t('research-competitors-button')}
         </Button>
       </div>
     </motion.div>

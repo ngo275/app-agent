@@ -92,6 +92,7 @@ Localization:
 - Emphasize practical, real-world benefits of the app.
 
 General Rules:
+- Do not use emojis.
 - Do not make up facts or include unverified information.
 - Write in plain text, without formatting like bold, italic, or brackets.
 - Use as much character space as possible within the limits for each field.

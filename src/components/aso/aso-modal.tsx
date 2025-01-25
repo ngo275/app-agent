@@ -27,14 +27,18 @@ import {
 import {
   addKeyword,
   deleteKeyword,
-  suggestKeywords,
   useGetAsoKeywords,
+  researchCompetitors,
+  selectAndScoreKeywords,
+  useGetCompetitors,
+  addCompetitor,
+  deleteCompetitor,
 } from '@/lib/swr/aso';
 import { useTeam } from '@/context/team';
 import { optimizeContents } from '@/lib/swr/aso';
 import { getLocaleName, LocaleCode } from '@/lib/utils/locale';
 import { useApp } from '@/context/app';
-import { AsoTarget, AsoKeyword, AsoContent } from '@/types/aso';
+import { AsoTarget, AsoKeyword, AsoContent, Competitor } from '@/types/aso';
 import KeywordChips from '@/components/aso/keyword-chips';
 import StartResearch from '@/components/aso/start-research';
 import ASOModalSkeleton from '../skeleton/aso-modal';
@@ -45,6 +49,9 @@ import { IoMdArrowBack } from 'react-icons/io';
 import KeywordGenerationProgress from '@/components/aso/keyword-generation-progress';
 import { useTranslations } from 'next-intl';
 import { useAnalytics } from '@/lib/analytics';
+import CompetitorResearchProgress from '@/components/aso/competitor-research-progress';
+import CompetitorList from '@/components/aso/competitor-list';
+import { AppStoreApp } from '@/types/app-store';
 
 interface ASOModalProps {
   isOpen: boolean;
@@ -66,62 +73,83 @@ export function ASOModal({
   const t = useTranslations('aso');
   const analytics = useAnalytics();
   const asoKeywords = useGetAsoKeywords(appInfo?.currentApp?.id || '', locale);
+  const asoCompetitors = useGetCompetitors(
+    appInfo?.currentApp?.id || '',
+    locale
+  );
   const [step, setStep] = useState(0);
   const [keywords, setKeywords] = useState<AsoKeyword[]>([]);
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [shortDescription, setShortDescription] = useState(
     appInfo.currentApp?.shortDescription || ''
   );
   const isKeywordsLoading = asoKeywords.loading;
+  const isCompetitorsLoading = asoCompetitors.loading;
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] =
     useState<AsoContent>(initialValues);
-  const [events, setEvents] = useState<any[]>([]);
+  const [competitorEvents, setCompetitorEvents] = useState<any[]>([]);
+  const [keywordEvents, setKeywordEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (asoCompetitors.competitors) {
+      setCompetitors(asoCompetitors.competitors);
+      if (step === 0 && asoCompetitors.competitors.length > 0 && !isLoading) {
+        setStep(2);
+      }
+    }
+  }, [asoCompetitors.competitors]);
 
   useEffect(() => {
     if (asoKeywords.keywords) {
       setKeywords(asoKeywords.keywords);
-      // Only auto-advance to step 2 on initial load
-      if (step === 0 && asoKeywords.keywords.length > 0 && !isLoading) {
-        setStep(2);
+      if (step === 3 && asoKeywords.keywords.length > 0 && !isLoading) {
+        setStep(4);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [asoKeywords.keywords]);
 
   useEffect(() => {
-    if (step === 1 && events.length === 0 && !isLoading) {
+    if (step === 1 && competitorEvents.length === 0 && !isLoading) {
       setStep(0);
     }
-  }, [step, isLoading, events]);
+  }, [step, isLoading, competitorEvents]);
 
-  const handleKeywordSuggestion = async () => {
+  useEffect(() => {
+    if (step === 3 && keywordEvents.length === 0 && !isLoading) {
+      setStep(2);
+    }
+  }, [step, isLoading, keywordEvents]);
+
+  const handleCompetitorResearch = async () => {
     if (!teamInfo?.currentTeam?.id || !appInfo.currentApp?.id) {
       return;
     }
     setIsLoading(true);
     setStep(1);
-    setEvents([]);
+    setCompetitorEvents([]);
     try {
-      analytics.capture('Keyword Suggestion Started', {
+      analytics.capture('Competitor Research Started', {
         teamId: teamInfo?.currentTeam?.id,
         appId: appInfo.currentApp?.id,
         locale: locale,
       });
-      await suggestKeywords(
+      await researchCompetitors(
         teamInfo.currentTeam.id,
         appInfo.currentApp.id,
         locale,
         shortDescription,
-        appInfo.currentApp?.store,
-        appInfo.currentApp?.platform,
+        appInfo.currentApp?.store || 'APPSTORE',
+        appInfo.currentApp?.platform || 'IOS',
         (data: any) => {
-          setEvents((prevEvents) => [...prevEvents, data]);
-          if (data.type === 'finalKeywords') {
-            setKeywords(data.data);
+          setCompetitorEvents((prevEvents) => [...prevEvents, data]);
+          if (data.type === 'finalCompetitors') {
+            setCompetitors(data.data);
             setIsLoading(false);
             setStep(2);
-            analytics.capture('Keywords Suggested', {
+            analytics.capture('Competitors Found', {
               teamId: teamInfo?.currentTeam?.id,
               appId: appInfo.currentApp?.id,
               locale: locale,
@@ -130,30 +158,61 @@ export function ASOModal({
         }
       );
     } catch (error) {
-      toast.error(t('failed-to-suggest-keywords'));
-      setEvents((prevEvents) => {
-        // If last event is a start event, replace it with error
-        if (
-          prevEvents.length > 0 &&
-          prevEvents[prevEvents.length - 1].type.startsWith('start:')
-        ) {
-          return [
-            ...prevEvents.slice(0, -1),
-            {
-              type: 'error',
-              message: t('failed-to-suggest-keywords'),
-            },
-          ];
-        }
-        // Otherwise append error event
-        return [
-          ...prevEvents,
-          {
-            type: 'error',
-            message: t('failed-to-suggest-keywords'),
-          },
-        ];
+      toast.error(t('failed-to-research-competitors'));
+      setCompetitorEvents((prevEvents) => [
+        ...prevEvents,
+        {
+          type: 'error',
+          message: t('failed-to-research-competitors'),
+        },
+      ]);
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeywordGeneration = async () => {
+    if (!teamInfo?.currentTeam?.id || !appInfo.currentApp?.id) {
+      return;
+    }
+    setIsLoading(true);
+    setStep(3);
+    setKeywordEvents([]);
+    try {
+      analytics.capture('Keyword Generation Started', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: appInfo.currentApp?.id,
+        locale: locale,
       });
+      await selectAndScoreKeywords(
+        teamInfo.currentTeam.id,
+        appInfo.currentApp.id,
+        locale,
+        shortDescription,
+        appInfo.currentApp?.store,
+        appInfo.currentApp?.platform,
+        (data: any) => {
+          setKeywordEvents((prevEvents) => [...prevEvents, data]);
+          if (data.type === 'finalKeywords') {
+            setKeywords(data.data);
+            setIsLoading(false);
+            setStep(4);
+            analytics.capture('Keywords Generated', {
+              teamId: teamInfo?.currentTeam?.id,
+              appId: appInfo.currentApp?.id,
+              locale: locale,
+            });
+          }
+        }
+      );
+    } catch (error) {
+      toast.error(t('failed-to-generate-keywords'));
+      setKeywordEvents((prevEvents) => [
+        ...prevEvents,
+        {
+          type: 'error',
+          message: t('failed-to-generate-keywords'),
+        },
+      ]);
       setIsLoading(false);
     }
   };
@@ -170,7 +229,7 @@ export function ASOModal({
     if (!teamInfo?.currentTeam?.id || !appInfo.currentApp?.id) return;
 
     setIsGenerating(true);
-    setStep(4);
+    setStep(6);
 
     analytics.capture('Content Optimization Started', {
       teamId: teamInfo?.currentTeam?.id,
@@ -258,6 +317,42 @@ export function ASOModal({
       return null;
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleCompetitorAdd = async (app: Partial<AppStoreApp>) => {
+    if (!teamInfo?.currentTeam?.id || !appInfo.currentApp?.id) return;
+    try {
+      const newCompetitor = await addCompetitor(
+        teamInfo.currentTeam.id,
+        appInfo.currentApp.id,
+        locale,
+        app
+      );
+      setCompetitors((prev) => [newCompetitor, ...prev]);
+    } catch (error) {
+      toast.error(t('failed-to-add-competitor'));
+    }
+  };
+
+  const handleCompetitorDelete = async (competitorId: string) => {
+    if (!teamInfo?.currentTeam?.id || !appInfo.currentApp?.id) return;
+    try {
+      setCompetitors((prev) => prev.filter((c) => c.id !== competitorId));
+      await deleteCompetitor(
+        teamInfo.currentTeam.id,
+        appInfo.currentApp.id,
+        locale,
+        competitorId
+      );
+      analytics.capture('Competitor Deleted', {
+        teamId: teamInfo?.currentTeam?.id,
+        appId: appInfo.currentApp?.id,
+        locale: locale,
+        competitorId: competitorId,
+      });
+    } catch (error) {
+      toast.error(t('failed-to-delete-competitor'));
     }
   };
 
@@ -354,16 +449,20 @@ export function ASOModal({
             )}
             <DialogTitle className="m-0">
               {step === 0 &&
-                t('keyword-research', { locale: getLocaleName(locale) })}
+                t('setup-aso-process', { locale: getLocaleName(locale) })}
               {step === 1 &&
-                t('generating-keywords', { locale: getLocaleName(locale) })}
+                t('researching-competitors', { locale: getLocaleName(locale) })}
               {step === 2 &&
-                t('confirm-keywords', { locale: getLocaleName(locale) })}
+                t('manage-competitors', { locale: getLocaleName(locale) })}
               {step === 3 &&
+                t('generating-keywords', { locale: getLocaleName(locale) })}
+              {step === 4 &&
+                t('manage-keywords', { locale: getLocaleName(locale) })}
+              {step === 5 &&
                 t('select-fields-to-generate', {
                   locale: getLocaleName(locale),
                 })}
-              {step === 4 &&
+              {step === 6 &&
                 t('review-generated-contents', {
                   locale: getLocaleName(locale),
                 })}
@@ -371,7 +470,7 @@ export function ASOModal({
           </div>
         </DialogHeader>
 
-        {isKeywordsLoading ? (
+        {isKeywordsLoading || isCompetitorsLoading ? (
           <div className="space-y-4">
             <ASOModalSkeleton />
           </div>
@@ -382,7 +481,7 @@ export function ASOModal({
                 <StartResearch
                   shortDescription={shortDescription}
                   setShortDescription={setShortDescription}
-                  onStart={handleKeywordSuggestion}
+                  onStart={handleCompetitorResearch}
                   isLoading={isLoading}
                 />
               </div>
@@ -390,16 +489,16 @@ export function ASOModal({
 
             {step === 1 && (
               <div className="space-y-4">
-                <KeywordGenerationProgress
-                  events={events}
+                <CompetitorResearchProgress
+                  events={competitorEvents}
                   isLoading={isLoading}
-                  onRetry={handleKeywordSuggestion}
+                  onRetry={handleCompetitorResearch}
                 />
                 {!isLoading &&
-                  !events.some((event) => event.type === 'error') && (
+                  !competitorEvents.some((event) => event.type === 'error') && (
                     <div className="flex justify-end">
                       <Button onClick={() => setStep(2)} disabled={isLoading}>
-                        {t('confirm-keywords-title')}
+                        {t('confirm')}
                       </Button>
                     </div>
                   )}
@@ -407,6 +506,54 @@ export function ASOModal({
             )}
 
             {step === 2 && (
+              <div className="flex flex-col flex-1 min-h-0">
+                <div className="flex-1 overflow-auto">
+                  <CompetitorList
+                    appId={appInfo.currentApp?.id || ''}
+                    locale={locale}
+                    competitors={competitors}
+                    onAdd={handleCompetitorAdd}
+                    onDelete={handleCompetitorDelete}
+                    isLoading={isLoading}
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-4 mt-auto">
+                  <Button
+                    variant="outline"
+                    onClick={handleCompetitorResearch}
+                    disabled={isLoading}
+                  >
+                    {t('research-again')}
+                  </Button>
+                  <Button
+                    onClick={handleKeywordGeneration}
+                    disabled={isLoading}
+                  >
+                    {t('generate-keywords')}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-4">
+                <KeywordGenerationProgress
+                  events={keywordEvents}
+                  isLoading={isLoading}
+                  onRetry={handleKeywordGeneration}
+                />
+                {!isLoading &&
+                  !keywordEvents.some((event) => event.type === 'error') && (
+                    <div className="flex justify-end">
+                      <Button onClick={() => setStep(4)} disabled={isLoading}>
+                        {t('confirm-keywords-title')}
+                      </Button>
+                    </div>
+                  )}
+              </div>
+            )}
+
+            {step === 4 && (
               <div className="flex flex-col flex-1 min-h-0">
                 <div className="flex-1 overflow-auto">
                   <KeywordChips
@@ -419,19 +566,19 @@ export function ASOModal({
                 <div className="flex justify-end gap-2 pt-4 mt-auto">
                   <Button
                     variant="outline"
-                    onClick={handleKeywordSuggestion}
+                    onClick={handleKeywordGeneration}
                     disabled={isLoading}
                   >
                     {t('regenerate-keywords')}
                   </Button>
-                  <Button onClick={() => setStep(3)} disabled={isLoading}>
+                  <Button onClick={() => setStep(5)} disabled={isLoading}>
                     {t('confirm-aso-keywords')}
                   </Button>
                 </div>
               </div>
             )}
 
-            {step === 3 && (
+            {step === 5 && (
               <SelectFields
                 store={appInfo.currentApp?.store || 'APPSTORE'}
                 currentValues={initialValues}
@@ -439,7 +586,7 @@ export function ASOModal({
               />
             )}
 
-            {step === 4 && (
+            {step === 6 && (
               <GenerateContentsView
                 isGenerating={isGenerating}
                 store={appInfo.currentApp?.store || 'APPSTORE'}

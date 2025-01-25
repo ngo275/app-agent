@@ -6,9 +6,8 @@ import {
   handleAppError,
   InvalidParamsError,
 } from '@/types/errors';
-import { suggestKeywords } from '@/lib/aso/suggest';
 import { NextResponse } from 'next/server';
-import { draftVersion } from '@/lib/utils/versions';
+import { scoreKeyword } from '@/lib/aso/score';
 
 export const maxDuration = 300;
 
@@ -50,26 +49,18 @@ export async function GET(
   }
 }
 
-// Run keyword research and make suggestion
+// Score and store a keyword in the database
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: LocaleCode } }
+  { params }: { params: { teamId: string; appId: string; locale: string } }
 ) {
-  // It will retrieve the App Store data and compute the basic stats (diffuculty, competitors' keywords based on locale)
-  // It will leverage LLM to rerank the keyword candidates
   try {
-    const { appStoreConnectJWT, teamId } = await validateTeamAccess(request);
+    const { teamId } = await validateTeamAccess(request);
     const { appId, locale } = params;
     const data = await request.json();
-
-    if (!data.shortDescription) {
-      throw new InvalidParamsError('Short description is required');
-    }
-    if (!data.store) {
-      throw new InvalidParamsError('Store is required');
-    }
-    if (!data.platform) {
-      throw new InvalidParamsError('Platform is required');
+    const { term } = data;
+    if (!term) {
+      throw new InvalidParamsError('Missing term');
     }
 
     // Verify app belongs to team
@@ -78,72 +69,46 @@ export async function POST(
         id: appId,
         teamId: teamId,
       },
-      include: {
-        versions: {
-          where: {
-            state: {
-              in: ['PREPARE_FOR_SUBMISSION', 'REJECTED'],
-            },
-          },
-          take: 1,
-        },
-      },
     });
 
     if (!app) {
       throw new AppNotFoundError(`App ${appId} not found`);
     }
 
-    const draftAppVersion = app.versions.find(
-      (v) => v.state && draftVersion(v.state)
-    );
-    if (!draftAppVersion) {
-      throw new InvalidParamsError('No draft version found for this app');
-    }
+    // Score the keyword
+    const score = await scoreKeyword(locale as LocaleCode, term, appId);
 
-    // Save shortDescription to database
-    await prisma.app.update({
+    // Store the keyword score in the database
+    const keyword = await prisma.asoKeyword.upsert({
       where: {
-        id: appId,
+        appId_store_platform_locale_keyword: {
+          appId,
+          store: app.store,
+          platform: app.platform,
+          locale: locale as LocaleCode,
+          keyword: term,
+        },
       },
-      data: {
-        shortDescription: data.shortDescription,
+      update: {
+        trafficScore: score.trafficScore,
+        difficultyScore: score.difficultyScore,
+        position: score.position,
+        overall: score.overall,
       },
-    });
-
-    const encoder = new TextEncoder();
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          const writer = {
-            write: (data: any) => {
-              controller.enqueue(encoder.encode(JSON.stringify(data) + '\n'));
-            },
-          };
-
-          const result = await suggestKeywords(
-            appId,
-            locale,
-            data.shortDescription,
-            data.store,
-            data.platform,
-            writer
-          );
-          controller.close();
-        } catch (err) {
-          controller.error(err);
-        }
+      create: {
+        appId,
+        store: app.store,
+        platform: app.platform,
+        locale: locale as LocaleCode,
+        keyword: term,
+        trafficScore: score.trafficScore,
+        difficultyScore: score.difficultyScore,
+        position: score.position,
+        overall: score.overall,
       },
     });
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      },
-    });
+    return NextResponse.json(keyword);
   } catch (error) {
     return handleAppError(error as Error);
   }

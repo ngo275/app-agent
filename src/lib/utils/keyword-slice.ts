@@ -8,13 +8,13 @@ import { KeywordScore } from '@/types/aso';
  * @param buffer - The buffer as a percentage of the maxCharacters.
  * @returns The sliced keywords.
  */
-export const sliceKeywords = (
-  keywords: KeywordScore[] | string[],
+export function sliceKeywords<T extends string | { keyword: string }>(
+  keywords: T[],
   maxCharacters: number,
   buffer: number = 0.1
-) => {
+): T[] {
   let totalLength = 0;
-  const slicedKeywords: (KeywordScore | string)[] = [];
+  const slicedKeywords: T[] = [];
 
   for (const keyword of keywords) {
     const keywordLength =
@@ -30,4 +30,4 @@ export const sliceKeywords = (
   }
 
   return slicedKeywords;
-};
+}

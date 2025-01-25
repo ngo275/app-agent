@@ -6,6 +6,7 @@ export type Step = {
   title: string;
   description: string;
   icon: JSX.Element;
+  beta?: boolean;
 };
 
 export const steps: Step[] = [
@@ -20,6 +21,7 @@ export const steps: Step[] = [
     title: 'improve-aso',
     description: 'improve-aso-description',
     icon: <MdTrendingUp className="w-8 h-8" />,
+    beta: true,
   },
   {
     mode: LocalizationEditMode.QUICK_RELEASE,

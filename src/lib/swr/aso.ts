@@ -8,10 +8,12 @@ import {
   Platform,
   Store,
   AsoContent,
+  Competitor,
 } from '@/types/aso';
 import { fetcher } from '../utils/fetcher';
 import { useState } from 'react';
 import useSWR from 'swr';
+import { AppStoreApp } from '@/types/app-store';
 
 export function useGetAsoKeywords(appId: string, locale: LocaleCode) {
   const teamInfo = useTeam();
@@ -43,7 +45,171 @@ export function useGetAsoKeywords(appId: string, locale: LocaleCode) {
   };
 }
 
-export async function suggestKeywords(
+export function useGetCompetitors(appId: string, locale: LocaleCode) {
+  const teamInfo = useTeam();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const {
+    data: competitors,
+    error,
+    mutate,
+    isLoading,
+  } = useSWR<Competitor[]>(
+    teamInfo?.currentTeam?.id && appId && locale
+      ? `/api/teams/${teamInfo.currentTeam.id}/apps/${appId}/localizations/${locale}/competitors`
+      : null,
+    fetcher
+  );
+
+  const refresh = async () => {
+    setIsRefreshing(true);
+    await mutate();
+    setIsRefreshing(false);
+  };
+
+  return {
+    competitors,
+    loading: isLoading,
+    error,
+    isRefreshing,
+    refresh,
+  };
+}
+
+export async function researchCompetitors(
+  teamId: string,
+  appId: string,
+  locale: LocaleCode,
+  shortDescription: string,
+  store: Store = 'APPSTORE',
+  platform: Platform = 'IOS',
+  onData: (data: any) => void
+) {
+  const response = await fetch(
+    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/competitors/research`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shortDescription, store, platform }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder();
+  let receivedText = '';
+
+  if (reader) {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      receivedText += chunk;
+
+      const lines = receivedText.split('\n');
+      // Keep the last partial line
+      receivedText = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.trim() === '') continue;
+        try {
+          const data = JSON.parse(line);
+          onData(data);
+        } catch (err) {
+          console.error('Failed to parse JSON:', line, err);
+        }
+      }
+    }
+    // Handle any remaining text
+    if (receivedText.trim() !== '') {
+      try {
+        const data = JSON.parse(receivedText);
+        onData(data);
+      } catch (err) {
+        console.error('Failed to parse JSON:', receivedText, err);
+      }
+    }
+  } else {
+    const text = await response.text();
+    console.error('No readable stream in response body', text);
+    throw new Error('No readable stream in response body');
+  }
+}
+
+export async function searchCompetitors(
+  teamId: string,
+  appId: string,
+  locale: LocaleCode,
+  term: string,
+  store: Store,
+  platform: Platform
+): Promise<Partial<AppStoreApp>[]> {
+  const response = await fetch(
+    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/competitors/search`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ term, store, platform }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw error;
+  }
+
+  return response.json();
+}
+
+export async function deleteCompetitor(
+  teamId: string,
+  appId: string,
+  locale: LocaleCode,
+  competitorId: string
+) {
+  const response = await fetch(
+    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/competitors/${competitorId}`,
+    {
+      method: 'DELETE',
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw error;
+  }
+
+  return response.json();
+}
+
+export async function addCompetitor(
+  teamId: string,
+  appId: string,
+  locale: LocaleCode,
+  competitor: Partial<AppStoreApp>
+): Promise<Competitor> {
+  const response = await fetch(
+    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/competitors`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ competitor }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw error;
+  }
+
+  return response.json();
+}
+
+export async function selectAndScoreKeywords(
   teamId: string,
   appId: string,
   locale: LocaleCode,
@@ -53,7 +219,7 @@ export async function suggestKeywords(
   onData: (data: any) => void
 ) {
   const response = await fetch(
-    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/keyword`,
+    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/keyword/hunt`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -135,7 +301,7 @@ export async function addKeyword(
   term: string
 ) {
   const response = await fetch(
-    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/keyword/add`,
+    `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/keyword`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -84,7 +84,7 @@ function generateKeywords(
   return result;
 }
 
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 2;
 
 export async function optimizeContents(
   locale: LocaleCode,

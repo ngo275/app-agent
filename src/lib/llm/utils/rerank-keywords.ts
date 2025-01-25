@@ -33,5 +33,5 @@ export async function rerankKeywords(
   }
 
   const result = response.choices[0].message.parsed;
-  return result;
+  return result?.keywords || [];
 }

@@ -190,6 +190,7 @@ model App {
   versions        AppVersion[]
   localizations   AppLocalization[]
   asoKeywords     AsoKeyword[]
+  competitors     Competitor[]
 
   isStaged        Boolean   @default(false)
 
@@ -305,4 +306,27 @@ model AsoKeyword {
   @@index([locale])
   @@index([keyword])
   @@index([lastCheckedAt])
+}
+
+model Competitor {
+  id String @id @default(cuid())
+  appId String
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade, map: "competitors")
+  locale String
+  competitorId String // store ID
+  title String
+  subtitle String?
+  description String?
+  iconUrl String?
+  guessedKeywords String[]
+  reviews Int @default(0)
+  order Int @default(0)
+  store Store
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([appId, locale, competitorId], name: "appId_locale_competitorId")
+  @@index([appId])
+  @@index([locale])
+  @@index([order])
 }
