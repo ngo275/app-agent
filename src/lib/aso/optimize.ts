@@ -136,7 +136,9 @@ export async function optimizeContents(
     title,
     asoKeywords,
     shortDescription || '',
-    FIELD_LIMITS.description
+    currentDescription || '',
+    FIELD_LIMITS.description,
+    retryOption
   );
   result.description = description;
 
@@ -196,6 +198,7 @@ export async function optimizeContents(
         title,
         asoKeywords,
         shortDescription || '',
+        currentDescription || '',
         FIELD_LIMITS.description,
         retryOption
       );

@@ -189,8 +189,9 @@ export async function selectAndScoreKeywords(
     totalSteps: TOTAL_STEPS,
   });
   const keywordScores = [];
-  for (let i = 0; i < keywordCandidates.length; i += 5) {
-    const batch = keywordCandidates.slice(i, i + 5);
+  const scoringBatchSize = 3;
+  for (let i = 0; i < keywordCandidates.length; i += scoringBatchSize) {
+    const batch = keywordCandidates.slice(i, i + scoringBatchSize);
     const batchScores = await Promise.all(
       batch.map(async (keyword) => {
         const score = await scoreKeyword(locale, keyword, appId);
@@ -199,7 +200,7 @@ export async function selectAndScoreKeywords(
       })
     );
     keywordScores.push(...batchScores);
-    if (i + 5 < keywordCandidates.length) {
+    if (i + scoringBatchSize < keywordCandidates.length) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }

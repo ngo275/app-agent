@@ -3,6 +3,7 @@ import {
   systemPrompt,
   userPrompt,
   userPromptToGenerateDescription,
+  userPromptToGenerateDescriptionForJa,
 } from '../prompts/optimization';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
 import { z } from 'zod';
@@ -130,6 +131,7 @@ export async function generateDescription(
   appName: string,
   asoKeywords: AsoKeyword[],
   shortDescription: string,
+  currentDescription: string,
   maxDescriptionLength: number,
   retry?: {
     prev: string;
@@ -144,16 +146,36 @@ export async function generateDescription(
         : `"${keyword.keyword}"`
     )
     .join(', ');
-  const userPrompt = userPromptToGenerateDescription.render({
-    locale: localeName,
-    asoKeywords: formattedAsoKeywords,
-    maxDescriptionLength,
-    appName,
-    shortDescription,
-  });
+
+  let userPrompt;
+  if (locale === LocaleCode.JA) {
+    // Using the same language as the target language is better for the model to generate the description.
+    userPrompt = userPromptToGenerateDescriptionForJa.render({
+      locale: localeName,
+      asoKeywords: formattedAsoKeywords,
+      maxDescriptionLength,
+      appName,
+      shortDescription,
+      currentDescription,
+    });
+  } else {
+    userPrompt = userPromptToGenerateDescription.render({
+      locale: localeName,
+      asoKeywords: formattedAsoKeywords,
+      maxDescriptionLength,
+      appName,
+      shortDescription,
+      currentDescription,
+    });
+  }
+
+  const shouldUseO1Series = retry?.prev ? false : true;
 
   const messages = [
-    { role: 'user', content: userPrompt.trim() },
+    {
+      role: shouldUseO1Series ? 'user' : 'system',
+      content: userPrompt.trim(),
+    },
   ] as ChatCompletionMessageParam[];
 
   if (retry?.prev && retry?.feedback) {
@@ -164,7 +186,7 @@ export async function generateDescription(
   console.log(JSON.stringify(messages, null, 2));
 
   const response = await openai.chat.completions.create({
-    model: retry ? 'gpt-4o' : 'o1-preview',
+    model: shouldUseO1Series ? 'o1-mini' : 'gpt-4o',
     messages,
   });
 

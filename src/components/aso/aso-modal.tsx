@@ -92,15 +92,21 @@ export function ASOModal({
   const [competitorEvents, setCompetitorEvents] = useState<any[]>([]);
   const [keywordEvents, setKeywordEvents] = useState<any[]>([]);
 
+  // when opening the modal
   useEffect(() => {
     if (asoCompetitors.competitors) {
       setCompetitors(asoCompetitors.competitors);
       if (step === 0 && asoCompetitors.competitors.length > 0 && !isLoading) {
-        setStep(2);
+        if (asoKeywords.keywords && asoKeywords.keywords.length > 0) {
+          setStep(4);
+        } else {
+          setStep(2);
+        }
       }
     }
   }, [asoCompetitors.competitors]);
 
+  // when opening the modal
   useEffect(() => {
     if (asoKeywords.keywords) {
       setKeywords(asoKeywords.keywords);
@@ -111,12 +117,14 @@ export function ASOModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [asoKeywords.keywords]);
 
+  // when going back from competitor research
   useEffect(() => {
     if (step === 1 && competitorEvents.length === 0 && !isLoading) {
       setStep(0);
     }
   }, [step, isLoading, competitorEvents]);
 
+  // when going back from keyword generation
   useEffect(() => {
     if (step === 3 && keywordEvents.length === 0 && !isLoading) {
       setStep(2);

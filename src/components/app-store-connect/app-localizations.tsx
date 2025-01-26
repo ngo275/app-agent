@@ -50,6 +50,7 @@ import { Textarea } from '@/components/ui/textarea';
 import LoadingOverlay from '@/components/common/loading';
 import { useTranslations } from 'next-intl';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '../ui/badge';
 
 interface AppLocalizationsProps {
   localizations: {
@@ -192,8 +193,16 @@ export default function AppLocalizations({
       />
 
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
           {tAso(currentStep.title)}
+          {currentStep.beta && (
+            <Badge
+              variant="secondary"
+              className="ml-2 bg-blue-100 text-blue-700 hover:bg-blue-100"
+            >
+              {t('beta')}
+            </Badge>
+          )}
         </h2>
         {/* <button
           onClick={() => setCurrentStepIndex(0)}

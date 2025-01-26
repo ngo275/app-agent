@@ -22,6 +22,7 @@ export interface OptimizationUserTemplateDataToGenerateDescription {
   locale: string;
   asoKeywords: string;
   shortDescription: string;
+  currentDescription: string;
   maxDescriptionLength: number;
   appName: string;
 }
@@ -32,10 +33,10 @@ You hold PhD in psychology and linguistics at Stanford University and
 excel at crafting messages that resonate with {{locale}} speakers.
 
 [TASK]
-Generate ASO-optimized {{targetContents}} for an app based on the provided information.
-Prioritize high keyword density while maintaining readability and a natural tone. 
-The target audience is {{locale}} speakers, so ensure the language and phrasing feel localized and engaging. 
-Use the pre-defined ASO keywords effectively to improve rankings for those terms.
+- Generate ASO-optimized {{targetContents}} for an app based on the provided information.
+- Prioritize high keyword density while maintaining readability and a natural tone. 
+- The target audience is {{locale}} speakers, so ensure the language and phrasing feel localized and engaging. 
+- Use the pre-defined ASO keywords effectively to improve rankings for those terms.
 
 [RULES FOR ASO OUTPUT]
 {{#if appStore}}
@@ -115,16 +116,51 @@ Ensure high keyword density by integrating as many target keywords as possible w
 
 const userPromptTemplateToGenerateDescription = `
 Generate ASO friendly app description for my app ({{appName}}) in {{locale}}.
+
+[App Information]
+App name: {{appName}}
 Target keywords: {{asoKeywords}}
 App short description: {{shortDescription}}
+Current description: 
+---
+{{currentDescription}}
+---
 
+[OUTPUT REQUIREMENTS]
 - Use all target keywords naturally and as frequently as possible without keyword stuffing.
+- Start with a question that hooks users.
 - Incorporate keywords in the opening sentences (important for ASO ranking).
 - Highlight the app's features and benefits while weaving in keywords organically.
 - Close with a call-to-action encouraging downloads.
 - Do not make up facts or include unverified information.
+- Do not use markdown. Just use plain text.
+- Do not use emojis.
  
-The max description length is {{maxDescriptionLength}} characters, so consume this space as much as possible within this limit. Do not use markdown. Just use plain text.
+The max description length is {{maxDescriptionLength}} characters, so consume this space as much as possible within this limit.
+`;
+
+const userPromptTemplateToGenerateDescriptionForJa = `
+ASOに強いアプリの概要を作成してください。
+
+[アプリの情報]
+アプリ名：{{appName}}
+アプリの簡単な説明：{{shortDescription}}
+現在の概要：
+---
+{{currentDescription}}
+---
+
+[ターゲットのキーワード]
+{{asoKeywords}}
+
+[タスク]
+- ターゲットのキーワードをすべて自然な形で散りばめてください。
+- 特に最初の段落ではキーとなるキーワードを使ってください。
+- 共感を誘うような質問から入り、アプリの特長を説明してください。
+- {{maxDescriptionLength}}文字が限界ですが、キーワードを繰り返し利用するために長めの概要を作成してください。
+- 機能等で、与えられていない情報を勝手に追加しないでください。
+- マークダウンは使用しないでください。
+- emojiも使用しないでください。
 `;
 
 export const systemPrompt = new TemplateManager<OptimizationSystemTemplateData>(
@@ -137,4 +173,9 @@ export const userPrompt = new TemplateManager<OptimizationUserTemplateData>(
 export const userPromptToGenerateDescription =
   new TemplateManager<OptimizationUserTemplateDataToGenerateDescription>(
     userPromptTemplateToGenerateDescription
+  );
+
+export const userPromptToGenerateDescriptionForJa =
+  new TemplateManager<OptimizationUserTemplateDataToGenerateDescription>(
+    userPromptTemplateToGenerateDescriptionForJa
   );
