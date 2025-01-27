@@ -37,7 +37,7 @@ https://github.com/user-attachments/assets/09172b8c-c690-42b2-a394-8b65e80c25ad
 
 ### Release Management
 
-https://github.com/user-attachments/assets/09172b8c-c690-42b2-a394-8b65e80c25ad
+https://github.com/user-attachments/assets/9148a814-ae24-4005-adb6-d113933b67d3
 
 - **Localize your release notes**
   - Generate release notes in all languages.
