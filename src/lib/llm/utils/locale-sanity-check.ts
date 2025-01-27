@@ -1,9 +1,6 @@
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
-import {
-  keywordFinalSanityCheckSystemPrompt,
-  keywordLanguageReviewSystemPrompt,
-} from '@/lib/llm/prompts/keyword';
+import { keywordFinalSanityCheckPrompt } from '@/lib/llm/prompts/keyword';
 import { z } from 'zod';
 import { LlmRefusalError } from '@/types/errors';
 import { getLocaleName, LocaleCode } from '@/lib/utils/locale';
@@ -20,10 +17,15 @@ export const localeSanityCheck = async (
     .map((keyword, i) => `  ${i + 1}. "${keyword}"`)
     .join('\n');
   const messages = [
-    { role: 'system', content: keywordLanguageReviewSystemPrompt.trim() },
+    {
+      role: 'system',
+      content: keywordFinalSanityCheckPrompt.render({
+        locale: getLocaleName(locale),
+      }),
+    },
     {
       role: 'user',
-      content: `- Target Language: ${getLocaleName(locale)}\n- Keywords: ${keywordsString}`,
+      content: `- Keywords: ${keywordsString}`,
     },
   ] as ChatCompletionMessageParam[];
 
@@ -48,10 +50,15 @@ export const keywordFinalSanityCheck = async (
     .map((keyword, i) => `  ${i + 1}. "${keyword}"`)
     .join('\n');
   const messages = [
-    { role: 'system', content: keywordFinalSanityCheckSystemPrompt.trim() },
+    {
+      role: 'system',
+      content: keywordFinalSanityCheckPrompt.render({
+        locale: getLocaleName(locale),
+      }),
+    },
     {
       role: 'user',
-      content: `- Target Language: ${getLocaleName(locale)}\n- Keywords: ${keywordsString}`,
+      content: `- Keywords: ${keywordsString}`,
     },
   ] as ChatCompletionMessageParam[];
 

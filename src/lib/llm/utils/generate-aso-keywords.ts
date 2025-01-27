@@ -1,10 +1,9 @@
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { LocaleCode } from '@/lib/utils/locale';
-import { getLocaleName } from '@/lib/utils/locale';
+import { LocaleCode, getLocaleName } from '@/lib/utils/locale';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
 import { z } from 'zod';
 import { LlmRefusalError } from '@/types/errors';
-import { keywordGenerationUserPrompt } from '@/lib/llm/prompts/keyword';
+import { keywordGenerationPrompt } from '@/lib/llm/prompts/keyword';
 
 const KeywordResponseSchema = z.object({
   keywords: z.array(z.string()),
@@ -18,7 +17,7 @@ export async function generateAsoKeywords(
   const messages = [
     {
       role: 'system',
-      content: keywordGenerationUserPrompt.render({
+      content: keywordGenerationPrompt.render({
         locale: getLocaleName(locale),
       }),
     },

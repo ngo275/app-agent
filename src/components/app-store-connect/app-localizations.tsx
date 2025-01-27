@@ -51,8 +51,22 @@ import LoadingOverlay from '@/components/common/loading';
 import { useTranslations } from 'next-intl';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '../ui/badge';
+import { AppStoreState } from '@/types/app-store';
 
 interface AppLocalizationsProps {
+  versionStatus: {
+    upToDate: boolean;
+    localVersion: {
+      version: string;
+      state: AppStoreState;
+      id: string;
+    };
+    remoteVersion: {
+      version: string;
+      state: AppStoreState;
+      id: string;
+    };
+  };
   localizations: {
     [key: string]: { public?: AppLocalization; draft?: AppLocalization };
   };
@@ -65,6 +79,7 @@ interface AppLocalizationsProps {
 }
 
 export default function AppLocalizations({
+  versionStatus,
   localizations,
   saveLocalLocalizations,
   updateLocalLocalizations,
@@ -100,7 +115,7 @@ export default function AppLocalizations({
         Object.values(localizations)
           .map((loc) => loc.public || loc.draft)
           .filter(Boolean) as AppLocalization[],
-        Object.values(localizations)?.[0]?.draft?.appVersion?.version || '',
+        versionStatus.localVersion.version,
         Object.values(localizations)?.[0]?.draft?.appVersion?.platform || ''
       );
 

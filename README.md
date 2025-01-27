@@ -1,10 +1,15 @@
 # AppAgent
 
+> [!IMPORTANT]
 > From ASO to Release, All Streamlined.
 
-[AppAgent](https://app-agent.ai) is an open-source alternative to ASO tools, such as App Radar, AppTweak, AppFollow, and Sensor Tower. AppAgent is AI-first and works autonomously.
+[AppAgent](https://app-agent.ai) is an AI-first tool that manages your app's ASO and release process.
+
+AppAgent is an open-source alternative to ASO tools, such as App Radar, AppTweak, AppFollow, and Sensor Tower. AppAgent is AI-first and works autonomously.
 
 https://github.com/user-attachments/assets/e34baeef-ceab-4fdb-9a7c-e6a5ab80dbba
+
+---
 
 ## Why AppAgent?
 
@@ -14,15 +19,20 @@ App Store Connect also introduced friction into the release workflow. That’s w
 
 ## Features
 
-- **Autonomous keyword research**
+- **Autonomous keyword research (Beta)**
   - No more manual keyword hunting.
   - Run autonomously, regardless of locales and markets.
-- **AI-powered store optimization**
+  - Go find competitors and have you manage the auto-curated competitor list.
+  - Research keywords and finalize the list with AI based on the competitors.
+- **AI-powered store optimization (Beta)**
   - Instant suggestions based on your app's metadata.
   - ASO friendly contents generation for all languages.
   - No expert-level marketing needed, just click and go.
 - **Store synchronization**
-  - AppAgent read/write data to App Store Connect. Google Play is coming soon.
+  - Sync data with App Store Connect. Google Play is coming soon.
+  - No more manual data entry on App Store Connect.
+  - Push all changes to App Store Connect with a single click.
+  - Submit to app review with a single click.
 - **Keyword tracking + self-healing** (Coming soon)
   - Track your keywords and suggest edits without having you manually read charts.
 

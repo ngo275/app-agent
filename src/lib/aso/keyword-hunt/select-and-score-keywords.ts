@@ -1,7 +1,13 @@
 import { LocaleCode } from '@/lib/utils/locale';
 import { extractKeywordsFromTitleAndDescription } from '@/lib/llm/utils/extract-keywords';
 import { getAppLocalization } from './utils';
-import { AsoKeyword, KeywordScore, Platform, Store } from '@/types/aso';
+import {
+  AsoKeyword,
+  CompetitorKeyword,
+  KeywordScore,
+  Platform,
+  Store,
+} from '@/types/aso';
 import { getTrackedCompetitors } from './manage-competitors';
 import prisma from '@/lib/prisma';
 import { rerankKeywords } from '@/lib/llm/utils/rerank-keywords';
@@ -69,6 +75,9 @@ export async function selectAndScoreKeywords(
           data: { guessedKeywords: keywords },
         });
 
+        // Update the competitor object in memory
+        competitor.guessedKeywords = keywords;
+
         return keywords;
       })
     );
@@ -77,9 +86,21 @@ export async function selectAndScoreKeywords(
   }
 
   const deduplicatedKeywords = Array.from(new Set(allKeywords));
+
+  const competitorKeywords: CompetitorKeyword[] = [];
+  for (const keyword of deduplicatedKeywords) {
+    const filteredCompetitors = competitors.filter((competitor) =>
+      competitor.guessedKeywords?.includes(keyword)
+    );
+    competitorKeywords.push({
+      keyword,
+      competitors: filteredCompetitors || [],
+    });
+  }
+
   writer?.write({
     type: 'end:extractKeywordsFromCompetitors',
-    data: deduplicatedKeywords,
+    data: competitorKeywords,
     step: currentStep,
     totalSteps: TOTAL_STEPS,
   });
@@ -97,19 +118,29 @@ export async function selectAndScoreKeywords(
     title,
     shortDescription,
     locale,
-    deduplicatedKeywords
+    competitorKeywords
   );
   let keywordCandidates = sliceKeywords(
     rerankedKeywords,
     FIELD_LIMITS.keywords
   );
   if (keywordCandidates.length < 16) {
-    // Some languages have very few keywords, so we need to add more if that's the case
+    // Some languages have very few keywords with sliceKeywords, so we need to add more if that's the case
     keywordCandidates = rerankedKeywords.slice(0, 16);
   }
+  const rerankedKeywordsWithCompetitors = rerankedKeywords
+    .map((keyword) => ({
+      keyword,
+      competitors:
+        competitorKeywords.find(
+          (competitorKeyword) =>
+            competitorKeyword.keyword.toLowerCase() === keyword.toLowerCase()
+        )?.competitors || [],
+    }))
+    .filter((keyword) => keyword.competitors.length > 0);
   writer?.write({
     type: 'end:rerankKeywords',
-    data: keywordCandidates,
+    data: rerankedKeywordsWithCompetitors,
     step: currentStep,
     totalSteps: TOTAL_STEPS,
   });

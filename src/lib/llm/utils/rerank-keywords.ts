@@ -1,9 +1,10 @@
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
 import { z } from 'zod';
-import { keywordRerankingSystemPrompt } from '@/lib/llm/prompts/keyword';
+import { keywordRerankingPrompt } from '@/lib/llm/prompts/keyword';
 import { LlmRefusalError } from '@/types/errors';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { getLocaleName, LocaleCode } from '@/lib/utils/locale';
+import { CompetitorKeyword } from '@/types/aso';
 
 const KeywordResponseSchema = z.object({
   keywords: z.array(z.string()),
@@ -13,13 +14,26 @@ export async function rerankKeywords(
   title: string,
   shortDescription: string,
   locale: LocaleCode,
-  keywords: string[]
+  keywords: CompetitorKeyword[]
 ) {
+  const formattedKeywords = keywords
+    .map(
+      (keyword) =>
+        `${keyword.keyword} (Used by ${keyword.competitors.length} competitor apps)`
+    )
+    .join(', ');
   const messages = [
-    { role: 'system', content: keywordRerankingSystemPrompt.trim() },
+    {
+      role: 'system',
+      content: keywordRerankingPrompt.render({ locale: getLocaleName(locale) }),
+    },
     {
       role: 'user',
-      content: `Target app: "${title} (${shortDescription})"\nLocale: ${getLocaleName(locale)}\nHere are keywords of competitor apps: ${keywords.join(', ')}`,
+      content: `Here's the target app information:
+App name: ${title}
+App description: ${shortDescription}
+
+Here are keywords of competitor apps: ${formattedKeywords}`,
     },
   ] as ChatCompletionMessageParam[];
   const response = await openai.beta.chat.completions.parse({

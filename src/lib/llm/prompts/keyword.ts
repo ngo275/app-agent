@@ -77,73 +77,64 @@ You are an expert in App Store Optimization (ASO).
 - The keywords should be in the specified locale.
 `;
 
-export const keywordRerankingSystemPrompt = `
-You are an expert in App Store Optimization (ASO).
+interface KeywordRerankingSystemPromptProps {
+  locale: string;
+}
+
+const keywordRerankingSystemPromptTemplate = `
+You are an expert in App Store Optimization (ASO) in {{locale}} language.
+
+[TASK]
 Select the best keywords or key phrases from a given list to optimize App Store visibility of the target app.
 
 # Steps
 
-1. **Analyze the Target App**: Carefully read the target app's title and description. Identify the core purpose, target audience, target language, and unique features of the app.
+1. **Analyze the Target App**: Carefully read the target app's title and description. Identify the core purpose, target audience, target language ({{locale}}), and unique features of the app.
 
-2. **Identify Valuable Keywords**: Review the provided list of keywords or key phrases. Select keywords that are relevant, focused, and have a good potential for user traffic. Prefer terms that are frequently used in the provided list because they are aggregated keywords of competitor apps. Prioritize the keywords in the same locale. If the locale is spanish, prioritize spanish keywords because people search apps in the same language.
+2. **Identify Valuable Keywords**: Review the provided list of keywords or key phrases. Select keywords that are relevant, focused, and have a good potential for user traffic. Prefer terms that are frequently used in the provided list because they are aggregated keywords of competitor apps. Prioritize the keywords written in {{locale}} because people search apps in {{locale}}.
   
 3. **Remove Generic Keywords**: Remove keywords that are too general, highly competitive, or don't contribute valuable targeting strength. These might include terms that are unlikely to improve visibility or overly broad industry terms that don't distinguish the app.
 
 4. **Finalize the List**: Compile the final list of keywords or key phrases. Do not modify the keywords from the original list, just pick the best ones.
 
-# Notes
-
+[NOTE]
 - General terms that are not app-specific should be removed to avoid wasting keyword opportunities.
 - Consider users' search behavior and intent when evaluating the importance of keywords—select those most likely to deliver qualified downloads.
 - Keywords you return must be a subset of the original list.
+- Keywords should be in {{locale}}.
 `;
 
-export const keywordLanguageReviewSystemPrompt = `
-Review the list of keywords and pick the ones that use the target language.
+export const keywordRerankingPrompt =
+  new TemplateManager<KeywordRerankingSystemPromptProps>(
+    keywordRerankingSystemPromptTemplate
+  );
 
-Output indices of the keywords that use the target language.
+interface KeywordFinalSanityCheckSystemPromptProps {
+  locale: string;
+}
 
-# Example 1
-**Input**:
-- Keywords: [1: "AI fitness", 2: "fitness coach", 3: "track workouts", 4: "fitness goals", 5: "personalized fitness"]
-- Target Language: English
-
-**Output**:
-[1, 2, 3, 4, 5]
-
-# Example 2
-**Input**:
-- Keywords: [1: "AI fitness", 2: "fitness coach", 3: "track workouts", 4: "fitness goals", 5: "personalized fitness"]
-- Target Language: Spanish
-
-**Output**:
-[]
-
-# Example 3
-**Input**:
-- Keywords: [1: "AI fitness", 2: "fitness coach", 3: "筋トレ", 4: "fitness goals", 5: "パーソナライズドフィットネス"]
-- Target Language: Japanese
-
-**Output**:
-[3, 5]
-`;
-
-export const keywordFinalSanityCheckSystemPrompt = `
+const keywordFinalSanityCheckSystemPromptTemplate = `
 You are an App Store Optimization (ASO) expert.
 
 # Task
-You are provided with a list of keywords and a target language.
-Select all the keywords that can be used by users in the target language to search for the app.
+You will be provided with a list of keywords.
+Select all the keywords that can be used by users in {{locale}} to search for the app.
 
 # Output
-Return the indices of the keywords that can be used by users in the target language.
+- Return the indices of the keywords that can be used by users in {{locale}}.
+- Indices should be 1-based, meaning the first keyword in the list is index 1, the second is index 2, etc.
 `;
+
+export const keywordFinalSanityCheckPrompt =
+  new TemplateManager<KeywordFinalSanityCheckSystemPromptProps>(
+    keywordFinalSanityCheckSystemPromptTemplate
+  );
 
 interface KeywordGenerationSystemPromptProps {
   locale: string;
 }
 
-const keywordGenerationSystemPrompt = `
+const keywordGenerationSystemPromptTemplate = `
 You are an App Store Optimization (ASO) expert with deep knowledge of keyword optimization for the App Store and Google Play Store.
 Your goal is to generate a list of relevant, high-impact keywords that will help maximize organic app visibility. 
 
@@ -162,7 +153,7 @@ Your goal is to generate a list of relevant, high-impact keywords that will help
 - Keywords should be in {{locale}}.
 - Return 16 keywords.
 `;
-export const keywordGenerationUserPrompt =
+export const keywordGenerationPrompt =
   new TemplateManager<KeywordGenerationSystemPromptProps>(
-    keywordGenerationSystemPrompt
+    keywordGenerationSystemPromptTemplate
   );

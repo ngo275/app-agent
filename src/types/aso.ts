@@ -22,6 +22,11 @@ export type AsoContent = {
   keywords: string;
 };
 
+export type CompetitorKeyword = {
+  keyword: string;
+  competitors: Competitor[];
+};
+
 export type KeywordScore = {
   keyword: string;
   trafficScore: number | null;

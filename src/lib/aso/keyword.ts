@@ -1,7 +1,7 @@
 import { extractKeywords as extractKeywordsWithLlm } from '@/lib/llm/utils/extract-keywords';
 import { rerankKeywords as rerankKeywordsWithLlm } from '@/lib/llm/utils/rerank-keywords';
 import { redis } from '@/lib/redis';
-import { Platform } from '@/types/aso';
+import { CompetitorKeyword, Platform } from '@/types/aso';
 import { LocaleCode } from '../utils/locale';
 
 const CACHE_EXPIRATION = 60 * 60 * 24 * 7; // 1 week
@@ -35,7 +35,7 @@ export async function rerankKeywords(
   title: string,
   shortDescription: string,
   locale: LocaleCode,
-  keywords: string[]
+  keywords: CompetitorKeyword[]
 ) {
   const result = await rerankKeywordsWithLlm(
     title,

@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { CompetitorKeyword } from '@/types/aso';
+import CompetitorKeywords from './competitor-keywords';
 
 interface KeywordGenerationProgressProps {
   events: any[];
@@ -370,6 +372,11 @@ function renderCompletedEventContent(event: any, t: any) {
 
     case 'extractKeywordsFromCompetitors':
     case 'rerankKeywords':
+      return (
+        <div className="space-y-2">
+          <CompetitorKeywords keywords={event.data} isLoading={false} />
+        </div>
+      );
     case 'keywordsToResearch':
     case 'generateAsoKeywords':
       return (

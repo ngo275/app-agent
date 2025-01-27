@@ -27,7 +27,7 @@ export async function findCompetitors(
   shortDescription: string,
   writer?: { write: (data: any) => void }
 ): Promise<CompetitorSearchResult> {
-  const TOTAL_STEPS = 7;
+  const TOTAL_STEPS = 6;
   let currentStep = 0;
 
   const appLocalization = await getAppLocalization(appId, locale);
@@ -235,7 +235,6 @@ export async function findCompetitors(
   // Select top competitors
   const topCompetitors = selectTopCompetitors(functionFilteredCompetitors, 16);
 
-  currentStep++;
   const savedCompetitors = await saveCompetitors(appId, locale, topCompetitors);
   writer?.write({
     type: 'finalCompetitors',
@@ -251,24 +250,40 @@ export async function findCompetitors(
 
 /**
  * Searches for competitor apps using provided keywords
+ *
+ * This function is designed to handle large numbers of keywords by batching requests and adding a delay between batches.
+ * This is to avoid rate limiting and to make the process more efficient.
  */
 async function searchCompetitorsByKeywords(
   locale: LocaleCode,
   keywords: string[]
 ): Promise<Partial<AppStoreApp>[]> {
-  const searchResults = await Promise.all(
-    keywords.map(async (keyword) => {
-      const result = await searchApps({
-        country: getCountryCode(locale),
-        language: getLocaleString(locale),
-        term: keyword.toLowerCase().trim(),
-        num: 100,
-      });
-      return result.apps.slice(0, 15);
-    })
-  );
+  const BATCH_SIZE = 5;
+  const DELAY_MS = 1000; // 1 second delay between batches
+  const results: Partial<AppStoreApp>[][] = [];
 
-  return searchResults
+  for (let i = 0; i < keywords.length; i += BATCH_SIZE) {
+    const batch = keywords.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(async (keyword) => {
+        const result = await searchApps({
+          country: getCountryCode(locale),
+          language: getLocaleString(locale),
+          term: keyword.toLowerCase().trim(),
+          num: 100,
+        });
+        return result.apps.slice(0, 15);
+      })
+    );
+    results.push(...batchResults);
+
+    // Add delay between batches, but not after the last batch
+    if (i + BATCH_SIZE < keywords.length) {
+      await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
+    }
+  }
+
+  return results
     .flat()
     .filter(
       (app): app is Partial<AppStoreApp> =>

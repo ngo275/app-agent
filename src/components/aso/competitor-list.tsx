@@ -101,18 +101,24 @@ export default function CompetitorList({
     };
   }, []);
 
+  // Filter out already added competitors from search results
+  const filteredSearchResults = searchResults.filter(
+    (result) => !competitors.some((c) => c.competitorId === result.id)
+  );
+
   const handleAddCompetitor = async (competitor: Partial<AppStoreApp>) => {
     if (!competitor.id) return;
-    if (competitors.some((c) => c.competitorId === competitor.id)) {
-      toast.success(t('competitor-already-added'));
-      return;
-    }
 
     try {
       setAddingCompetitorId(competitor.id);
       await onAdd(competitor);
-      // clearSearch();
-      toast.success(t('competitor-added-successfully'));
+      // Remove the added competitor from search results
+      setSearchResults((prev) => prev.filter((r) => r.id !== competitor.id));
+
+      // Clear search if no more results
+      if (searchResults.length <= 1) {
+        clearSearch();
+      }
     } catch (error) {
       toast.error(t('failed-to-add-competitor'));
     } finally {
@@ -146,65 +152,85 @@ export default function CompetitorList({
           </Button>
         </form>
 
-        {searchResults.length > 0 && (
-          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border rounded-lg shadow-lg">
+        {filteredSearchResults.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border rounded-lg shadow-lg"
+          >
             <div className="p-2 max-h-[300px] overflow-y-auto">
               <div className="space-y-1">
-                {searchResults.map((result) => (
-                  <button
-                    key={result.id}
-                    onClick={() => handleAddCompetitor(result)}
-                    disabled={isLoading || addingCompetitorId === result.id}
-                    className={cn(
-                      'w-full flex items-center gap-3 p-2 rounded-md hover:bg-accent transition-colors',
-                      'text-left focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-                      (isLoading || addingCompetitorId === result.id) &&
-                        'opacity-50 cursor-not-allowed'
-                    )}
-                  >
-                    {result.icon && (
-                      <Image
-                        src={result.icon}
-                        alt={result.title || ''}
-                        width={32}
-                        height={32}
-                        className="rounded-lg flex-shrink-0"
-                        unoptimized
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate">{result.title}</h4>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {t('reviews', {
-                          reviews: result.reviews?.toLocaleString() || 0,
-                        })}
-                      </p>
-                    </div>
-                    <div className="flex-shrink-0">
-                      {addingCompetitorId === result.id ? (
-                        <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full" />
-                      ) : (
-                        <FiPlus className="h-4 w-4 text-muted-foreground" />
+                <AnimatePresence>
+                  {filteredSearchResults.map((result) => (
+                    <motion.button
+                      key={result.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => handleAddCompetitor(result)}
+                      disabled={isLoading || addingCompetitorId === result.id}
+                      className={cn(
+                        'w-full flex items-center gap-3 p-2 rounded-md hover:bg-accent transition-colors',
+                        'text-left focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
+                        (isLoading || addingCompetitorId === result.id) &&
+                          'opacity-50 cursor-not-allowed'
                       )}
-                    </div>
-                  </button>
-                ))}
+                    >
+                      {result.icon && (
+                        <Image
+                          src={result.icon}
+                          alt={result.title || ''}
+                          width={32}
+                          height={32}
+                          className="rounded-lg flex-shrink-0"
+                          unoptimized
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium truncate">{result.title}</h4>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {t('reviews', {
+                            reviews: result.reviews?.toLocaleString() || 0,
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        {addingCompetitorId === result.id ? (
+                          <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full" />
+                        ) : (
+                          <FiPlus className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
       <ScrollArea className="h-[400px] pr-4">
         <div className="space-y-2">
-          <AnimatePresence initial={false}>
+          <AnimatePresence mode="popLayout">
             {competitors.map((competitor) => (
               <motion.div
                 key={competitor.competitorId}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{
+                  opacity: 0,
+                  scale: 0,
+                  x: -20,
+                  transition: {
+                    duration: 0.2,
+                    ease: 'backIn',
+                  },
+                }}
+                layout
                 className="relative"
               >
                 <div className="flex items-center justify-between gap-4 p-3 bg-card rounded-lg border">
@@ -245,9 +271,14 @@ export default function CompetitorList({
           </AnimatePresence>
 
           {competitors.length === 0 && !isLoading && (
-            <div className="text-center py-8 text-muted-foreground">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              className="text-center py-8 text-muted-foreground"
+            >
               {t('no-competitors-yet')}
-            </div>
+            </motion.div>
           )}
         </div>
       </ScrollArea>

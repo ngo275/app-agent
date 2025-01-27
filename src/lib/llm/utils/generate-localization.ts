@@ -33,5 +33,10 @@ export async function generateLocalizations(
     ],
   });
 
-  return response.choices[0].message.content || whatsNew;
+  return (response.choices[0].message.content || whatsNew)
+    .trim()
+    .replace(/\n\n/g, '\n')
+    .replace(/\*\*/g, '')
+    .replace(/### /g, '')
+    .replace(/## /g, '');
 }

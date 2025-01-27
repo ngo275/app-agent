@@ -1,20 +1,3 @@
-// This component (ASO modal) is a modal view responsible for managing ASO (keywords, title, subtitle, and description)
-// The concept is that
-// 1. The UI suggests good keywords after doing a research on the fly.
-// 2. A user confirms or modify it.
-// 3. The UI asks the user to provide
-//    - which field(s) to generate (title, subtitle, and/or description)
-//    - outline for the description (optiional) if description is checked.
-// 4. The UI then makes suggestion for title, subtitle, and description. This should also show a regenerate button with a feedback input field. This regenerate action should allow the user to select which field to regenerate, while the UI shows one feedback input.
-// 5. A user confirms or modify it, or regenerate with their feedback. This regenerate action will need the previous result (without using user modification), the user feedback, and which fields to regenerate.
-
-// 2 and 5 need backend process.
-// Keyword suggestion:
-// suggestKeywords function
-//
-// Title, subtitle, description suggestion:
-// optimizeContents function
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -162,6 +145,7 @@ export function ASOModal({
               appId: appInfo.currentApp?.id,
               locale: locale,
             });
+            toast.success(t('competitors-found'));
           }
         }
       );
@@ -209,6 +193,7 @@ export function ASOModal({
               appId: appInfo.currentApp?.id,
               locale: locale,
             });
+            toast.success(t('keywords-generated'));
           }
         }
       );

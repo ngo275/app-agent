@@ -442,6 +442,7 @@ export default function Home() {
               localizations={workingLocalizations}
               saveLocalLocalizations={handleSave}
               updateLocalLocalizations={handleUpdateLocalizations}
+              versionStatus={versionStatus}
               refresh={refresh}
             />
           )}

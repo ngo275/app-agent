@@ -331,10 +331,14 @@
     "add-keyword-placeholder": "Add Keyword...",
     "working-hard": "Working hard...",
     "completed": "Completed",
+    "error-occurred-during-competitor-research": "Error occurred during competitor research",
     "error-occurred-during-keyword-generation": "Error occurred during keyword generation",
     "try-again": "Try Again",
     "step-index-with-message": "Step {index}: {message}",
     "no-results-found": "No Results Found",
+    "competitors-found": "Competitors Found",
+    "keywords-generated": "Keywords Generated",
+    "used-by-competitors": "Used by {count} competitors",
     "event-titles": {
       "similar-apps-looked-up": "Similar Apps Looked Up",
       "title-search-results": "Apps Searched by Title",
@@ -371,7 +375,7 @@
     "brief-app-description": "Brief App Description",
     "brief-app-description-placeholder": "Enter a one-line description of your app. Ideally, focus on the app's unique features.",
     "brief-app-description-help": "This will help us provide better keyword suggestions for your app.",
-    "brief-app-description-help-2": "We have generated a short description for you, but you can edit it if you want.",
+    "brief-app-description-help-2": "Highlight the app's features and benefits.",
     "researching-competitors-button": "Researching Competitors...",
     "research-competitors-button": "Research Competitors"
   },
