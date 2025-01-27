@@ -119,8 +119,16 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser(message) {
+      const locale = await getUserLocale();
+
+      // Update user with locale
+      await prisma.user.update({
+        where: { id: message.user.id },
+        data: { locale },
+      });
+
       const params: CreateUserEmailProps = {
-        locale: await getUserLocale(),
+        locale,
         user: {
           name: message.user.name,
           email: message.user.email,
