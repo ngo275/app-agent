@@ -5,7 +5,7 @@ import I18nMiddleware from '@/lib/middleware/i18n';
 
 import { BLOCKED_PATHNAMES } from '@/lib/config';
 import PostHogMiddleware from '@/lib/middleware/posthog';
-import { SUPPORTED_LOCALES } from './lib/utils/locale';
+import { SUPPORTED_LOCALES, USER_LOCALE_COOKIE_NAME } from '@/lib/utils/locale';
 
 function isAnalyticsPath(path: string) {
   // Create a regular expression
@@ -48,8 +48,11 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
   }
 
   if (isI18nPath(path)) {
-    console.log('isI18nPath', path);
-    return I18nMiddleware(req);
+    const response = I18nMiddleware(req);
+    // Set the user locale cookie based on the path
+    const locale = path.split('/')[1]; // Extract locale from path like /ja/...
+    response.cookies.set(USER_LOCALE_COOKIE_NAME, locale);
+    return response;
   }
 
   // if (

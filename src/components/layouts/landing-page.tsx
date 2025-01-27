@@ -50,20 +50,23 @@ export default function LandingPageLayout({
               {t('features')}
             </Link>
             <Link
-              href="#open-source"
-              className="hover:text-black transition-colors"
-            >
-              {t('open-source')}
-            </Link>
-            <Link
               href="#pricing"
               className="hover:text-black transition-colors"
             >
               {t('pricing')}
             </Link>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={GITHUB_LINK} target="_blank" aria-label="GitHub">
-                <FaGithub className="w-5 h-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="w-28 gap-2 text-base"
+            >
+              <Link
+                href={GITHUB_LINK}
+                target="_blank"
+                aria-label="View source code on GitHub"
+              >
+                <FaGithub className="w-5 h-5" /> {t('star-us')}
               </Link>
             </Button>
             <Button variant="default" asChild>
@@ -72,7 +75,7 @@ export default function LandingPageLayout({
           </nav>
 
           <button
-            className="md:hidden text-gray-700"
+            className="md:hidden text-gray-700 text-2xl"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation"
           >
@@ -103,6 +106,13 @@ export default function LandingPageLayout({
                 className="hover:text-black transition-colors"
               >
                 {t('pricing')}
+              </Link>
+              <Link
+                href={GITHUB_LINK}
+                target="_blank"
+                className="hover:text-black transition-colors flex items-center gap-2"
+              >
+                <FaGithub className="w-5 h-5" /> {t('star-us')}
               </Link>
               <Link
                 href="/login"
