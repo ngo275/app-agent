@@ -4,6 +4,8 @@ import { searchApps } from '@/lib/app-store/search-apps';
 import { getLocaleString } from '@/lib/app-store/country-mapper';
 import { getCountryCode } from '@/lib/app-store/country-mapper';
 
+export const maxDuration = 30;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { teamId: string; appId: string; locale: string } }

@@ -9,6 +9,8 @@ import { LocaleCode } from '@/lib/utils/locale';
 import { draftVersion } from '@/lib/utils/versions';
 import { selectAndScoreKeywords } from '@/lib/aso/keyword-hunt/select-and-score-keywords';
 
+export const maxDuration = 300;
+
 // Run keyword research and make suggestion
 export async function POST(
   request: Request,

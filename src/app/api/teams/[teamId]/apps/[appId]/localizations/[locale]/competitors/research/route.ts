@@ -11,6 +11,8 @@ import { searchApps } from '@/lib/app-store/search-apps';
 import { findCompetitors } from '@/lib/aso/keyword-hunt/find-competitors';
 import { draftVersion } from '@/lib/utils/versions';
 
+export const maxDuration = 300;
+
 // Run competitor research and return a list of competitor apps
 export async function POST(
   request: Request,
