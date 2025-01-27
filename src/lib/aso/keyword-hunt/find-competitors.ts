@@ -27,7 +27,8 @@ export async function findCompetitors(
   shortDescription: string,
   writer?: { write: (data: any) => void }
 ): Promise<CompetitorSearchResult> {
-  const TOTAL_STEPS = 6;
+  const MAX_COMPETITORS = 30;
+  let TOTAL_STEPS = 7; // This must be incremented when additional steps are added
   let currentStep = 0;
 
   const appLocalization = await getAppLocalization(appId, locale);
@@ -75,36 +76,33 @@ export async function findCompetitors(
   }
 
   currentStep++;
-  if (competitors.size < 5) {
-    // If we don't have enough competitors from similar apps, use title as search term
-    writer?.write({
-      type: 'start:titleSearch',
-      message: 'Searching for competitors using app title',
-      step: currentStep,
-      totalSteps: TOTAL_STEPS,
-    });
-    const titleSearchResults = await searchApps({
-      country: getCountryCode(locale),
-      language: getLocaleString(locale),
-      term: title.toLowerCase().trim(),
-      num: 100,
-    });
+  writer?.write({
+    type: 'start:titleSearch',
+    message: 'Searching for competitors using app title',
+    step: currentStep,
+    totalSteps: TOTAL_STEPS,
+  });
+  const titleSearchResults = await searchApps({
+    country: getCountryCode(locale),
+    language: getLocaleString(locale),
+    term: title.toLowerCase().trim(),
+    num: 100,
+  });
 
-    titleSearchResults.apps
-      .filter((app) => app.id !== appId)
-      .slice(0, 10)
-      .forEach((app) => {
-        if (typeof app !== 'string' && app.id) {
-          competitors.set(app.id, app);
-        }
-      });
-    writer?.write({
-      type: 'end:titleSearch',
-      data: Array.from(competitors.values()),
-      step: currentStep,
-      totalSteps: TOTAL_STEPS,
+  titleSearchResults.apps
+    .filter((app) => app.id !== appId)
+    .slice(0, 10)
+    .forEach((app) => {
+      if (typeof app !== 'string' && app.id) {
+        competitors.set(app.id, app);
+      }
     });
-  }
+  writer?.write({
+    type: 'end:titleSearch',
+    data: Array.from(competitors.values()),
+    step: currentStep,
+    totalSteps: TOTAL_STEPS,
+  });
 
   currentStep++;
   // If we have current keywords, search for additional competitors
@@ -136,6 +134,8 @@ export async function findCompetitors(
       }
     });
   } else {
+    // NOTE: In this case, there are 2 steps as opposed to 1 in the other case.
+
     // Generate keywords
     writer?.write({
       type: 'start:generateKeywords',
@@ -152,6 +152,8 @@ export async function findCompetitors(
       totalSteps: TOTAL_STEPS,
     });
 
+    currentStep++;
+    TOTAL_STEPS++;
     writer?.write({
       type: 'start:searchApps',
       message:
@@ -233,8 +235,12 @@ export async function findCompetitors(
   });
 
   // Select top competitors
-  const topCompetitors = selectTopCompetitors(functionFilteredCompetitors, 16);
+  const topCompetitors = selectTopCompetitors(
+    functionFilteredCompetitors,
+    MAX_COMPETITORS
+  );
 
+  currentStep++;
   const savedCompetitors = await saveCompetitors(appId, locale, topCompetitors);
   writer?.write({
     type: 'finalCompetitors',

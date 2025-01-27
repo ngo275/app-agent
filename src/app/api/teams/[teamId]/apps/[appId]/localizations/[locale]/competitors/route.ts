@@ -37,6 +37,8 @@ export async function GET(
       appId,
       locale as LocaleCode
     );
+    // sort by review count
+    competitors.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
     return NextResponse.json(competitors);
   } catch (error) {
     return handleAppError(error as Error);
