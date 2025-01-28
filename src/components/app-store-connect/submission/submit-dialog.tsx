@@ -34,7 +34,6 @@ interface SubmitDialogProps {
   teamId: string;
   appId: string;
   versionId: string;
-  refresh: () => Promise<void>;
 }
 
 export default function SubmitDialog({
@@ -43,7 +42,6 @@ export default function SubmitDialog({
   teamId,
   appId,
   versionId,
-  refresh,
 }: SubmitDialogProps) {
   const t = useTranslations('dashboard.app-store-connect.submit');
   const analytics = useAnalytics();
@@ -69,9 +67,6 @@ export default function SubmitDialog({
       // Then submit for review
       await submitAppVersionForReview(teamId, appId, versionId);
 
-      // Refresh the data
-      await refresh();
-
       toast.success(t('success'));
       analytics.capture('Submitted for Review', {
         teamId: teamId,
@@ -80,6 +75,11 @@ export default function SubmitDialog({
         buildId: selectedBuildId,
       });
       onOpenChange(false);
+
+      // Add a small delay before refreshing to ensure toast is visible
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       toast.error(t('error'));
       console.error('Submit error:', error);

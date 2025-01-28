@@ -495,7 +495,6 @@ export default function Home() {
         teamId={teamInfo?.currentTeam?.id || ''}
         appId={currentApp?.id || ''}
         versionId={versionStatus?.localVersion.id || ''}
-        refresh={refresh}
       />
     </div>
   );
