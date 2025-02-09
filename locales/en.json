@@ -391,7 +391,7 @@
     "free-plan": "Free Trial",
     "billing": "Billing",
     "upgrade-plan": "Upgrade Plan",
-    "manage-billing": "Manage Billing",
+    "cancel-subscription": "Cancel Subscription",
     "current-plan": "Current Plan",
     "last-payment-date": "Last Payment Date",
     "canceled-date": "Canceled Date",
@@ -410,7 +410,8 @@
     "deleting": "Deleting...",
     "teams": "Teams",
     "manage-teams": "Manage Teams",
-    "select-team": "Select Team"
+    "select-team": "Select Team",
+    "delete-account-subscription-active": "To delete your account, you must first cancel your paid plan."
   },
   "common": {
     "coming-soon": "Coming Soon",

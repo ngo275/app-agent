@@ -390,8 +390,8 @@
     "no-email-provided": "メールアドレスが未設定",
     "free-plan": "無料トライアル",
     "billing": "請求",
-    "manage-billing": "請求管理",
     "upgrade-plan": "プランアップグレード",
+    "cancel-subscription": "プラン解約",
     "current-plan": "現在のプラン",
     "last-payment-date": "最終支払日",
     "canceled-date": "キャンセル日",
@@ -410,7 +410,8 @@
     "deleting": "削除中...",
     "teams": "チーム",
     "manage-teams": "チームを管理",
-    "select-team": "チームを選択"
+    "select-team": "チームを選択",
+    "delete-account-subscription-active": "アカウントを削除するには、まず有料プランをキャンセルする必要があります。"
   },
   "common": {
     "coming-soon": "開発中",

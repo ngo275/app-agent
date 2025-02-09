@@ -81,7 +81,7 @@ export function BillingSettings() {
               className="flex items-center space-x-2"
             >
               <RiBillLine className="h-4 w-4" />
-              <span>{t('manage-billing')}</span>
+              <span>{t('cancel-subscription')}</span>
             </Button>
           )}
         </CardHeader>
