@@ -12,6 +12,211 @@ import {
 } from '@/types/errors';
 import { LocaleCode } from '../utils/locale';
 
+const STOP_WORDS = new Set([
+  'a',
+  'about',
+  'above',
+  'after',
+  'again',
+  'against',
+  'all',
+  'am',
+  'an',
+  'and',
+  'any',
+  'app',
+  'are',
+  "aren't",
+  'as',
+  'at',
+  'be',
+  'because',
+  'been',
+  'before',
+  'being',
+  'below',
+  'between',
+  'both',
+  'but',
+  'by',
+  "can't",
+  'cannot',
+  'could',
+  "couldn't",
+  'did',
+  "didn't",
+  'do',
+  'does',
+  "doesn't",
+  'doing',
+  "don't",
+  'down',
+  'during',
+  'each',
+  'few',
+  'for',
+  'from',
+  'further',
+  'had',
+  "hadn't",
+  'has',
+  "hasn't",
+  'have',
+  "haven't",
+  'having',
+  'he',
+  "he'd",
+  "he'll",
+  "he's",
+  'her',
+  'here',
+  "here's",
+  'hers',
+  'herself',
+  'him',
+  'himself',
+  'his',
+  'how',
+  "how's",
+  'i',
+  "i'd",
+  "i'll",
+  "i'm",
+  "i've",
+  'if',
+  'in',
+  'into',
+  'is',
+  "isn't",
+  'it',
+  "it's",
+  'its',
+  'itself',
+  "let's",
+  'me',
+  'more',
+  'most',
+  "mustn't",
+  'my',
+  'myself',
+  'no',
+  'nor',
+  'not',
+  'of',
+  'off',
+  'on',
+  'once',
+  'only',
+  'or',
+  'other',
+  'ought',
+  'our',
+  'ours',
+  'ourselves',
+  'out',
+  'over',
+  'own',
+  'same',
+  "shan't",
+  'she',
+  "she'd",
+  "she'll",
+  "she's",
+  'should',
+  "shouldn't",
+  'so',
+  'some',
+  'such',
+  'than',
+  'that',
+  "that's",
+  'the',
+  'their',
+  'theirs',
+  'them',
+  'themselves',
+  'then',
+  'there',
+  "there's",
+  'these',
+  'they',
+  "they'd",
+  "they'll",
+  "they're",
+  "they've",
+  'this',
+  'those',
+  'through',
+  'to',
+  'too',
+  'under',
+  'until',
+  'up',
+  'very',
+  'was',
+  "wasn't",
+  'we',
+  "we'd",
+  "we'll",
+  "we're",
+  "we've",
+  'were',
+  "weren't",
+  'what',
+  "what's",
+  'when',
+  "when's",
+  'where',
+  "where's",
+  'which',
+  'while',
+  'who',
+  "who's",
+  'whom',
+  'why',
+  "why's",
+  'with',
+  "won't",
+  'would',
+  "wouldn't",
+  'you',
+  "you'd",
+  "you'll",
+  "you're",
+  "you've",
+  'your',
+  'yours',
+  'yourself',
+  'yourselves',
+]);
+
+// Helper function to detect plural English words
+function isSingularForm(word: string, otherWords: string[]): boolean {
+  if (word.length <= 3) return true; // Very short words are likely singular
+
+  if (
+    word.endsWith('s') &&
+    !word.endsWith('ss') &&
+    !word.endsWith('us') &&
+    !word.endsWith('is')
+  ) {
+    const singular = word.slice(0, -1);
+    return !otherWords.includes(singular);
+  }
+
+  if (word.endsWith('es')) {
+    const singular = word.slice(0, -2);
+    return !otherWords.includes(singular);
+  }
+
+  if (word.endsWith('ies')) {
+    const singular = word.slice(0, -3) + 'y';
+    return !otherWords.includes(singular);
+  }
+
+  return true; // If no plural form detected, assume it's singular
+}
+
 function reconstituteOriginalText(
   title?: string,
   subtitle?: string,
@@ -49,17 +254,36 @@ function generateKeywords(
   const titleLower = title.toLowerCase();
   const subtitleLower = subtitle?.toLowerCase() || '';
 
-  // Filter out keywords that are already used in title or subtitle
-  const unusedKeywords = asoKeywords.filter((keyword) => {
+  const allKeywords = asoKeywords.map((keyword) =>
+    keyword.keyword.toLowerCase()
+  );
+
+  // Filter out keywords:
+  // 1. Already used in title or subtitle
+  const filteredKeywords = asoKeywords.filter((keyword) => {
     const keywordLower = keyword.keyword.toLowerCase();
-    return (
-      !titleLower.includes(keywordLower) &&
-      !subtitleLower.includes(keywordLower)
-    );
+
+    // Skip keywords already in title or subtitle
+    if (
+      titleLower.includes(keywordLower) ||
+      subtitleLower.includes(keywordLower)
+    ) {
+      return false;
+    }
+
+    if (STOP_WORDS.has(keywordLower)) {
+      return false;
+    }
+
+    if (!isSingularForm(keywordLower, allKeywords)) {
+      return false;
+    }
+
+    return true;
   });
 
   // Sort by position (if available) to get most important keywords first
-  const sortedKeywords = unusedKeywords.sort((a, b) => {
+  const sortedKeywords = filteredKeywords.sort((a, b) => {
     if (!a.position && !b.position) return 0;
     if (!a.position) return 1;
     if (!b.position) return -1;
