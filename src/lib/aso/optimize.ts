@@ -254,52 +254,76 @@ function generateKeywords(
   const titleLower = title.toLowerCase();
   const subtitleLower = subtitle?.toLowerCase() || '';
 
-  const allKeywords = asoKeywords.map((keyword) =>
-    keyword.keyword.toLowerCase()
+  const titleAndSubtitleWords = new Set<string>();
+  [...titleLower.split(/\s+/), ...subtitleLower.split(/\s+/)].forEach(
+    (word) => {
+      if (word) titleAndSubtitleWords.add(word.toLowerCase());
+    }
   );
 
-  // Filter out keywords:
-  // 1. Already used in title or subtitle
-  const filteredKeywords = asoKeywords.filter((keyword) => {
-    const keywordLower = keyword.keyword.toLowerCase();
+  const allIndividualWords: string[] = [];
+  const wordToPositionMap = new Map<string, number>();
 
-    // Skip keywords already in title or subtitle
-    if (
-      titleLower.includes(keywordLower) ||
-      subtitleLower.includes(keywordLower)
-    ) {
+  asoKeywords.forEach((keyword) => {
+    const words = keyword.keyword.toLowerCase().split(/\s+/);
+
+    words.forEach((word) => {
+      if (word) {
+        allIndividualWords.push(word);
+
+        if (keyword.position !== null && keyword.position !== undefined) {
+          const currentPosition = wordToPositionMap.get(word);
+          if (
+            currentPosition === undefined ||
+            keyword.position < currentPosition
+          ) {
+            wordToPositionMap.set(word, keyword.position);
+          }
+        }
+      }
+    });
+  });
+
+  // Filter individual words:
+  // 2. Remove words already in title or subtitle
+  const uniqueWords = Array.from(new Set(allIndividualWords));
+  const filteredWords = uniqueWords.filter((word) => {
+    // Skip words already in title or subtitle
+    if (titleAndSubtitleWords.has(word)) {
       return false;
     }
 
-    if (STOP_WORDS.has(keywordLower)) {
+    if (STOP_WORDS.has(word)) {
       return false;
     }
 
-    if (!isSingularForm(keywordLower, allKeywords)) {
+    if (!isSingularForm(word, uniqueWords)) {
       return false;
     }
 
     return true;
   });
 
-  // Sort by position (if available) to get most important keywords first
-  const sortedKeywords = filteredKeywords.sort((a, b) => {
-    if (!a.position && !b.position) return 0;
-    if (!a.position) return 1;
-    if (!b.position) return -1;
-    return a.position - b.position;
+  const sortedWords = filteredWords.sort((a, b) => {
+    const posA = wordToPositionMap.get(a);
+    const posB = wordToPositionMap.get(b);
+
+    if (posA === undefined && posB === undefined) return 0;
+    if (posA === undefined) return 1;
+    if (posB === undefined) return -1;
+    return posA - posB;
   });
 
   // Build keywords string while respecting maxLength char limit
   const result: string[] = [];
   let currentLength = 0;
 
-  for (const keyword of sortedKeywords) {
-    // Add 1 for comma delimiter if not first keyword
+  for (const word of sortedWords) {
+    // Add 1 for comma delimiter if not first word
     const delimiterLength = result.length > 0 ? 1 : 0;
-    if (currentLength + keyword.keyword.length + delimiterLength <= maxLength) {
-      result.push(keyword.keyword);
-      currentLength += keyword.keyword.length + delimiterLength;
+    if (currentLength + word.length + delimiterLength <= maxLength) {
+      result.push(word);
+      currentLength += word.length + delimiterLength;
     } else {
       break;
     }
