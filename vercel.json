@@ -17,6 +17,9 @@
     },
     "src/app/api/teams/[teamId]/apps/[appId]/localizations/[locale]/competitors/research/route.ts": {
       "memory": 3009
+    },
+    "src/app/api/mcp/apps/[appId]/metadata/route.ts": {
+      "memory": 3009
     }
   }
 }
