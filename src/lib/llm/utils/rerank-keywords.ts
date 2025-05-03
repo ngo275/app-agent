@@ -37,7 +37,7 @@ Here are keywords of competitor apps: ${formattedKeywords}`,
     },
   ] as ChatCompletionMessageParam[];
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-mini',
     messages,
     response_format: zodResponseFormat(KeywordResponseSchema, 'keywords'),
   });

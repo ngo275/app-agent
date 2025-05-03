@@ -23,7 +23,7 @@ const KeywordResponseSchema = z.object({
 
 export async function extractKeywords(...inputs: string[]) {
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-mini',
     messages: [
       { role: 'system', content: keywordExtractionSystemPrompt },
       { role: 'user', content: inputs.join('\n\n\n') },
@@ -50,7 +50,7 @@ export async function extractKeywordsFromTitleAndDescription(
     return [];
   }
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-mini',
     messages: [
       {
         role: 'system',
