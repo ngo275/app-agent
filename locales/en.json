@@ -311,6 +311,7 @@
     "setup-aso-process": "Setup ASO Process ({locale})",
     "researching-competitors": "Researching Competitors ({locale})",
     "manage-competitors": "Manage Competitors ({locale})",
+    "no-competitors-yet": "No Competitors Yet",
     "generating-keywords": "Generating Keywords ({locale})",
     "manage-keywords": "Manage Keywords ({locale})",
     "select-fields-to-generate": "Select Fields to Generate ({locale})",

@@ -110,7 +110,7 @@ export async function generateContents(
   }
 
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4o',
+    model: 'gpt-4.1',
     messages,
     response_format:
       store === 'APPSTORE'

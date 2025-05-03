@@ -30,7 +30,7 @@ export const localeSanityCheck = async (
   ] as ChatCompletionMessageParam[];
 
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-mini',
     messages,
     response_format: zodResponseFormat(IndicesResponseSchema, 'indices'),
   });
@@ -63,7 +63,7 @@ export const keywordFinalSanityCheck = async (
   ] as ChatCompletionMessageParam[];
 
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-mini',
     messages,
     response_format: zodResponseFormat(IndicesResponseSchema, 'indices'),
   });

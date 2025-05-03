@@ -311,6 +311,7 @@
     "setup-aso-process": "ASOプロセスを設定 ({locale})",
     "researching-competitors": "競合アプリを調査中 ({locale})",
     "manage-competitors": "競合アプリを管理 ({locale})",
+    "no-competitors-yet": "まだ競合アプリがありません",
     "generating-keywords": "キーワード生成中 ({locale})",
     "manage-keywords": "キーワードを管理 ({locale})",
     "select-fields-to-generate": "生成するフィールドを選択 ({locale})",
