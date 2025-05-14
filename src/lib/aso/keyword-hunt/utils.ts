@@ -13,7 +13,7 @@ export async function getAppLocalization(
       locale,
       appVersion: {
         state: {
-          in: ['PREPARE_FOR_SUBMISSION', 'REJECTED'],
+          in: ['PREPARE_FOR_SUBMISSION', 'REJECTED', 'DEVELOPER_REJECTED'],
         },
       },
     },

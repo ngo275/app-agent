@@ -35,7 +35,7 @@ export async function POST(
         versions: {
           where: {
             state: {
-              in: ['PREPARE_FOR_SUBMISSION', 'REJECTED'],
+              in: ['PREPARE_FOR_SUBMISSION', 'REJECTED', 'DEVELOPER_REJECTED'],
             },
           },
           take: 1,
