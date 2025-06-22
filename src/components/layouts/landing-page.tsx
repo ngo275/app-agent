@@ -9,7 +9,8 @@ import { X_LINK } from '@/lib/constants';
 import { GITHUB_LINK } from '@/lib/constants';
 import Image from 'next/image';
 import logo from '@/assets/logo.png';
-import { useTranslations } from 'next-intl';
+import { WHITE_LABEL_CONFIG } from '@/lib/config';
+import { useWhiteLabelTranslations } from '@/hooks/useWhiteLabelTranslations';
 
 interface LandingPageLayoutProps {
   children: ReactNode;
@@ -18,7 +19,7 @@ interface LandingPageLayoutProps {
 export default function LandingPageLayout({
   children,
 }: LandingPageLayoutProps) {
-  const t = useTranslations('layout');
+  const t = useWhiteLabelTranslations('layout');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -199,10 +200,10 @@ export default function LandingPageLayout({
             <p className="text-gray-600 mt-4">
               {t('connect.contact-us')}
               <a
-                href="mailto:support@app-agent.ai"
+                href={`mailto:${WHITE_LABEL_CONFIG.supportEmail}`}
                 className="text-blue-600 hover:underline"
               >
-                support@app-agent.ai
+                {WHITE_LABEL_CONFIG.supportEmail}
               </a>
             </p>
           </div>

@@ -5,7 +5,7 @@ import { Resend } from 'resend';
 
 // import { log, nanoid } from "@/lib/utils";
 import { randomString } from '@/lib/utils/string';
-import { RESEND_API_KEY } from '@/lib/config';
+import { RESEND_API_KEY, WHITE_LABEL_CONFIG } from '@/lib/config';
 
 export const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
@@ -40,17 +40,17 @@ export const sendEmail = async ({
   try {
     const { data, error } = await resend.emails.send({
       from: marketing
-        ? 'Shu from AppAgent <shu@app-agent.ai>'
+        ? `${WHITE_LABEL_CONFIG.marketingName} <${WHITE_LABEL_CONFIG.marketingEmail}>`
         : system
-          ? 'AppAgent <info@app-agent.ai>'
+          ? `${WHITE_LABEL_CONFIG.appName} <${WHITE_LABEL_CONFIG.infoEmail}>`
           : verify
-            ? 'AppAgent <info@app-agent.ai>'
+            ? `${WHITE_LABEL_CONFIG.appName} <${WHITE_LABEL_CONFIG.infoEmail}>`
             : !!scheduledAt
-              ? 'Shu from AppAgent <shu@app-agent.ai>'
-              : 'Shu from AppAgent <shu@app-agent.ai>',
+              ? `${WHITE_LABEL_CONFIG.marketingName} <${WHITE_LABEL_CONFIG.marketingEmail}>`
+              : `${WHITE_LABEL_CONFIG.marketingName} <${WHITE_LABEL_CONFIG.marketingEmail}>`,
       to: test ? 'delivered@resend.dev' : to,
       cc: cc,
-      replyTo: marketing ? 'info@app-agent.ai' : undefined,
+      replyTo: marketing ? WHITE_LABEL_CONFIG.infoEmail : undefined,
       subject,
       react,
       scheduledAt,

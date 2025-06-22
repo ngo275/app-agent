@@ -5,14 +5,15 @@ import { FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import logo from '@/assets/logo.png';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { WHITE_LABEL_CONFIG } from '@/lib/config';
+import { useWhiteLabelTranslations } from '@/hooks/useWhiteLabelTranslations';
 
 interface PlainLayoutProps {
   children: ReactNode;
 }
 
 export default function PlainLayout({ children }: PlainLayoutProps) {
-  const t = useTranslations('layout');
+  const t = useWhiteLabelTranslations('layout');
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -84,10 +85,10 @@ export default function PlainLayout({ children }: PlainLayoutProps) {
             <p className="text-gray-600 mt-4">
               {t('connect.contact-us')}
               <a
-                href="mailto:support@app-agent.ai"
+                href={`mailto:${WHITE_LABEL_CONFIG.supportEmail}`}
                 className="text-blue-600 hover:underline"
               >
-                support@app-agent.ai
+                {WHITE_LABEL_CONFIG.supportEmail}
               </a>
             </p>
           </div>
