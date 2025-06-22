@@ -12,7 +12,7 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components';
-import { NEXT_PUBLIC_BASE_URL } from '@/lib/config';
+import { NEXT_PUBLIC_BASE_URL, WHITE_LABEL_CONFIG } from '@/lib/config';
 import { createTranslator } from 'next-intl';
 
 interface CancelPlanEmailProps {
@@ -64,7 +64,7 @@ const CancelPlanEmail = async ({ locale, name }: CancelPlanEmailProps) => {
             <Section className="mt-4">
               <Text className="text-sm">{tCommon('questions')}</Text>
               <Text className="text-sm text-gray-400">
-                {tCommon('shu-from-appagent')}
+                {WHITE_LABEL_CONFIG.marketingName}
               </Text>
             </Section>
             <Hr />

@@ -13,7 +13,7 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components';
-import { NEXT_PUBLIC_BASE_URL } from '@/lib/config';
+import { NEXT_PUBLIC_BASE_URL, WHITE_LABEL_CONFIG } from '@/lib/config';
 import { CALL_LINK, GITHUB_LINK, X_LINK } from '@/lib/constants';
 import { createTranslator } from 'next-intl';
 
@@ -88,7 +88,7 @@ const WelcomeEmail = async ({ locale, name }: WelcomeEmailProps) => {
             <Section className="mt-4">
               <Text className="text-sm">{tCommon('questions')}</Text>
               <Text className="text-sm text-gray-400">
-                {tCommon('shu-from-appagent')}
+                {WHITE_LABEL_CONFIG.marketingName}
               </Text>
             </Section>
             <Hr />

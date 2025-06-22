@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import Link from 'next/link';
 import { GITHUB_LINK } from '@/lib/constants';
-import { useTranslations } from 'next-intl';
+import { useWhiteLabelTranslations } from '@/hooks/useWhiteLabelTranslations';
 import { BiGlobe } from 'react-icons/bi';
 import { BsSpeedometer2 } from 'react-icons/bs';
 import { TbApps } from 'react-icons/tb';
@@ -71,8 +71,8 @@ const features = [
 ];
 
 export default function LandingPageView() {
-  const t = useTranslations('landing-page');
-  const tCommon = useTranslations('common');
+  const t = useWhiteLabelTranslations('landing-page');
+  const tCommon = useWhiteLabelTranslations('common');
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 

@@ -2,7 +2,7 @@
 
 <div align="center">
   <img width="200" src="https://github.com/user-attachments/assets/7f86c185-0fc1-46c3-888a-c915602f27ee" alt="AppAgent" />
-  <h2>From ASO to Release, All Streamlined.</h2>
+  <h2>From ASO to Release, All Streamlined</h2>
 </div>
 
 [AppAgent](https://app-agent.ai) is an AI-first tool that manages your app's ASO and release process. AppAgent is an open-source alternative to ASO tools, such as App Radar, AppTweak, AppFollow, and Sensor Tower. AppAgent is AI-first and works autonomously.
