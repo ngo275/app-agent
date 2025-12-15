@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import logo from '@/assets/logo.png';
-import { useTranslations } from 'next-intl';
+import { useWhiteLabelTranslations } from '@/hooks/useWhiteLabelTranslations';
 
 export default function SettingsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const t = useTranslations('layout');
+  const t = useWhiteLabelTranslations('layout');
 
   return (
     <div className="flex h-screen bg-background">

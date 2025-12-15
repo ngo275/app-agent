@@ -1,5 +1,6 @@
 import CancelPlanEmail from '@/components/emails/cancel-plan';
 import { sendEmail } from '@/lib/resend';
+import { WHITE_LABEL_CONFIG } from '@/lib/config';
 
 export default async function sendCancelPlanEmail(params: {
   locale: string;
@@ -13,7 +14,7 @@ export default async function sendCancelPlanEmail(params: {
   try {
     await sendEmail({
       to: user.email,
-      subject: 'Your AppAgent plan has been canceled',
+      subject: `Your ${WHITE_LABEL_CONFIG.appName} plan has been canceled`,
       react: emailTemplate,
       test: process.env.NODE_ENV === 'development',
     });

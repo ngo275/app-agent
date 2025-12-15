@@ -1,4 +1,5 @@
 import { sendEmail } from '@/lib/resend';
+import { WHITE_LABEL_CONFIG } from '@/lib/config';
 import UpgradePlanEmail from '@/components/emails/upgrade-plan';
 
 export default async function sendUpgradePlanEmail(params: {
@@ -18,7 +19,7 @@ export default async function sendUpgradePlanEmail(params: {
   try {
     await sendEmail({
       to: user.email,
-      subject: 'Thank you for upgrading your AppAgent plan!',
+      subject: `Thank you for upgrading your ${WHITE_LABEL_CONFIG.appName} plan!`,
       react: emailTemplate,
       test: process.env.NODE_ENV === 'development',
     });

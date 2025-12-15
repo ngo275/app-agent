@@ -37,3 +37,18 @@ export const STRIPE_PRICE_MAPPING = {
 };
 
 export const FREE_TRIAL_DAYS = 7;
+
+export const WHITE_LABEL_CONFIG = {
+  appName: process.env.NEXT_PUBLIC_APP_NAME || 'AppAgent',
+  domain: process.env.NEXT_PUBLIC_DOMAIN || 'app-agent.ai',
+  tagline:
+    process.env.NEXT_PUBLIC_TAGLINE || 'From ASO to Release, All Streamlined',
+  description:
+    process.env.NEXT_PUBLIC_DESCRIPTION ||
+    'AppAgent automates ASO while simplifying every step from planning to release. Effortlessly generate multilingual release notes, track growth, and handle updates—all in one place. OSS alternative to AppTweak, App Radar, and Sensor Tower.',
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@app-agent.ai',
+  infoEmail: process.env.NEXT_PUBLIC_INFO_EMAIL || 'info@app-agent.ai',
+  marketingEmail: process.env.NEXT_PUBLIC_MARKETING_EMAIL || 'shu@app-agent.ai',
+  marketingName: process.env.NEXT_PUBLIC_MARKETING_NAME || 'Shu from AppAgent',
+  twitterHandle: process.env.NEXT_PUBLIC_TWITTER_HANDLE || '@ngo275',
+};

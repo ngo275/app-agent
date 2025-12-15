@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo.png';
-import { useTranslations } from 'next-intl';
+import { useWhiteLabelTranslations } from '@/hooks/useWhiteLabelTranslations';
 import { useTeam } from '@/context/team';
 import { FREE_TRIAL_DAYS, NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
 import { differenceInDays } from 'date-fns';
@@ -37,7 +37,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const t = useTranslations('layout');
+  const t = useWhiteLabelTranslations('layout');
   const { data: session } = useSession();
   const { apps, currentApp, isLoading, setCurrentApp } = useApp();
   const teamInfo = useTeam();
