@@ -135,7 +135,7 @@ export default function Home() {
       [
         AppStoreState.PREPARE_FOR_SUBMISSION,
         AppStoreState.READY_FOR_REVIEW,
-      ].includes(versionStatus?.localVersion.state as AppStoreState) &&
+      ].includes(versionStatus?.localVersion?.state as AppStoreState) &&
       localizations &&
       Object.keys(localizations).length > 0 &&
       Object.values(localizations).every((loc) => loc.draft?.whatsNew)
@@ -144,11 +144,21 @@ export default function Home() {
   }, [versionStatus?.upToDate, localizations]);
 
   const needCreateNewVersion = useMemo(() => {
+    // For Google Play, versions are created by uploading APK/Bundle to the console
+    // So we don't show the "Create New Version" UI for Google Play apps
+    if (currentApp?.store === 'GOOGLEPLAY') {
+      return false;
+    }
+
     return (
       versionStatus?.upToDate &&
-      publicVersion(versionStatus?.localVersion.state || '')
+      publicVersion(versionStatus?.localVersion?.state || '')
     );
-  }, [versionStatus?.upToDate, versionStatus?.localVersion.state]);
+  }, [
+    versionStatus?.upToDate,
+    versionStatus?.localVersion?.state,
+    currentApp?.store,
+  ]);
 
   const handleUpdateLocalizations = (
     locale: string,
@@ -159,9 +169,10 @@ export default function Home() {
       [locale]: {
         ...prev[locale],
         draft: {
-          ...((prev[locale]?.draft || {}) as AppLocalization),
+          // Start from the existing draft, or fall back to public version, or create new with locale
+          ...(prev[locale]?.draft || prev[locale]?.public || { locale }),
           ...updatedData,
-        },
+        } as AppLocalization,
       },
     }));
     setHasChanges(true);
@@ -170,8 +181,15 @@ export default function Home() {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      const drafts = Object.values(workingLocalizations)
-        .map((loc) => loc.draft)
+      const drafts = Object.entries(workingLocalizations)
+        .map(([locale, loc]) => {
+          if (!loc.draft) return null;
+          // Ensure the draft has the locale field from the key
+          return {
+            ...loc.draft,
+            locale: loc.draft.locale || locale,
+          };
+        })
         .filter((draft): draft is AppLocalization => !!draft);
 
       await stageVersion(
@@ -222,7 +240,7 @@ export default function Home() {
     setShowPushDialog(false);
     setIsPushing(true);
     try {
-      const versionId = versionStatus?.localVersion.id;
+      const versionId = versionStatus?.localVersion?.id;
       await pushVersion(
         teamInfo?.currentTeam?.id || '',
         currentApp?.id || '',
@@ -338,8 +356,8 @@ export default function Home() {
           />
         ) : (
           <VersionLabel
-            version={versionStatus?.localVersion.version || ''}
-            state={versionStatus?.localVersion.state || ''}
+            version={versionStatus?.localVersion?.version || ''}
+            state={versionStatus?.localVersion?.state || ''}
           />
         )}
 
@@ -399,7 +417,9 @@ export default function Home() {
                     {t('push')}
                   </Button>
                   <Tooltip id="push-tooltip" place="top">
-                    {t('push-changes-to-app-store-connect')}
+                    {currentApp?.store === 'GOOGLEPLAY'
+                      ? t('push-changes-to-google-play')
+                      : t('push-changes-to-app-store-connect')}
                   </Tooltip>
                 </div>
 
@@ -430,10 +450,43 @@ export default function Home() {
 
       {versionStatus?.upToDate && (
         <>
+          {/* Google Play Info Banner */}
+          {currentApp?.store === 'GOOGLEPLAY' &&
+            versionStatus?.upToDate &&
+            publicVersion(versionStatus?.localVersion?.state || '') && (
+              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg
+                      className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                      {t('google-play-version-info')}
+                    </p>
+                    <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                      {t('google-play-version-info-detail')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
           {needCreateNewVersion ? (
             <CreateNewVersion
               createNewVersion={handleCreateNewVersion}
-              currentVersion={versionStatus?.localVersion.version || ''}
+              currentVersion={versionStatus?.localVersion?.version || ''}
             />
           ) : Object.keys(localizations || {}).length === 0 ? (
             <NoLocalizations />
@@ -474,10 +527,14 @@ export default function Home() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t('push-changes-to-app-store-connect-title')}
+              {currentApp?.store === 'GOOGLEPLAY'
+                ? t('push-changes-to-google-play-title')
+                : t('push-changes-to-app-store-connect-title')}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t('push-changes-to-app-store-connect-description')}
+              {currentApp?.store === 'GOOGLEPLAY'
+                ? t('push-changes-to-google-play-description')
+                : t('push-changes-to-app-store-connect-description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -494,7 +551,7 @@ export default function Home() {
         onOpenChange={setShowSubmitDialog}
         teamId={teamInfo?.currentTeam?.id || ''}
         appId={currentApp?.id || ''}
-        versionId={versionStatus?.localVersion.id || ''}
+        versionId={versionStatus?.localVersion?.id || ''}
       />
     </div>
   );

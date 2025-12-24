@@ -7,7 +7,12 @@ const withNextIntl = createNextIntlPlugin();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['lh3.googleusercontent.com'],
+    domains: [
+      'lh3.googleusercontent.com',
+      'play-lh.googleusercontent.com', // Google Play app icons
+      'lh5.googleusercontent.com', // Additional Google Play images
+      'lh6.googleusercontent.com', // Additional Google Play images
+    ],
   },
 
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],

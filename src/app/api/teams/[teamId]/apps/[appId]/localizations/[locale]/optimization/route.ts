@@ -2,7 +2,8 @@ import { optimizeContents } from '@/lib/aso/optimize';
 import { validateTeamAccess } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { LocaleCode } from '@/lib/utils/locale';
-import { draftVersion } from '@/lib/utils/versions';
+import { draftVersion, publicVersion } from '@/lib/utils/versions';
+import { Store } from '@/types/aso';
 import {
   AppNotFoundError,
   handleAppError,
@@ -33,12 +34,10 @@ export async function POST(
       },
       include: {
         versions: {
-          where: {
-            state: {
-              in: ['PREPARE_FOR_SUBMISSION', 'REJECTED', 'DEVELOPER_REJECTED'],
-            },
+          orderBy: {
+            createdAt: 'desc',
           },
-          take: 1,
+          take: 10, // Get more versions to find either draft or public
         },
       },
     });
@@ -47,18 +46,28 @@ export async function POST(
       throw new AppNotFoundError(`App ${appId} not found`);
     }
 
-    const draftAppVersion = app.versions.find(
-      (v) => v.state && draftVersion(v.state)
-    );
-    if (!draftAppVersion) {
-      throw new InvalidParamsError('No draft version found for this app');
+    // For Google Play, we can use public versions
+    // For App Store, we prefer draft versions
+    let appVersion = app.versions.find((v) => v.state && draftVersion(v.state));
+
+    if (!appVersion && app.store === Store.GOOGLEPLAY) {
+      // If no draft, use public version for Google Play
+      appVersion = app.versions.find((v) => v.state && publicVersion(v.state));
+    }
+
+    if (!appVersion) {
+      throw new InvalidParamsError(
+        app.store === Store.GOOGLEPLAY
+          ? 'No version found for this app'
+          : 'No draft version found for this app'
+      );
     }
 
     if (!data.title || !data.asoKeywords || !data.targets) {
       throw new InvalidParamsError('Missing required properties');
     }
 
-    // Add new locale to App Store Connect
+    // Generate optimized ASO content
     const result = await optimizeContents(
       locale,
       data.title,
@@ -67,7 +76,7 @@ export async function POST(
       data.subtitle,
       data.keywords,
       data.description,
-      app.shortDescription || undefined,
+      data.shortDescription,
       data.descriptionOutline,
       data.previousResult,
       data.userFeedback,

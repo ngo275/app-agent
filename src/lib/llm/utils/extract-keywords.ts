@@ -6,6 +6,7 @@ import openai, { zodResponseFormat } from '@/lib/llm/openai';
 import { z } from 'zod';
 import { LlmRefusalError } from '@/types/errors';
 import { getLocaleName, LocaleCode } from '@/lib/utils/locale';
+import { LLM_MODEL } from '@/lib/config';
 
 const Step = z.object({
   explanation: z.string(),
@@ -23,7 +24,7 @@ const KeywordResponseSchema = z.object({
 
 export async function extractKeywords(...inputs: string[]) {
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4.1-mini',
+    model: LLM_MODEL,
     messages: [
       { role: 'system', content: keywordExtractionSystemPrompt },
       { role: 'user', content: inputs.join('\n\n\n') },
@@ -50,7 +51,7 @@ export async function extractKeywordsFromTitleAndDescription(
     return [];
   }
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4.1-mini',
+    model: LLM_MODEL,
     messages: [
       {
         role: 'system',

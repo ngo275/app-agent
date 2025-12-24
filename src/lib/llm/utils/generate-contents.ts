@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { LlmRefusalError } from '@/types/errors';
 import { getLocaleName, LocaleCode } from '@/lib/utils/locale';
+import { LLM_MODEL } from '@/lib/config';
 
 // TODO: check the max length of keywords. This is also mentioned in the prompt.
 const ContentsResponseSchemaForAppStore = z.object({
@@ -35,9 +36,24 @@ const ContentsResponseSchemaForAppStore = z.object({
 });
 
 const ContentsResponseSchemaForGooglePlay = z.object({
-  title: z.string().optional(),
-  subtitle: z.string().optional(),
-  description: z.string().optional(),
+  title: z
+    .string()
+    .describe(
+      'The title of the app. Max length is 30 characters for Google Play. Keep the original app title as is and append keywords as a tag line if possible. Put as many characters as possible up to the limit.'
+    )
+    .optional(),
+  subtitle: z
+    .string()
+    .describe(
+      'The short description of the app for Google Play (short_description field). Max length is 80 characters. Put as many characters as possible up to the limit. This is a brief summary that appears in search results.'
+    )
+    .optional(),
+  description: z
+    .string()
+    .describe(
+      'The full description of the app for Google Play (full_description field). Max length is 4000 characters. Incorporate the target keywords into the description naturally as frequent as possible to increase the keyword density. Aim to use the target keywords 6 times or more in the description for each keyword. Especially, the first 3 target keywords must be used as frequently as possible (at least 6 times). Use up the max length of the description field. The longer the better up to the limit.'
+    )
+    .optional(),
 });
 
 export async function generateContents(
@@ -52,7 +68,7 @@ export async function generateContents(
     prev: string;
     feedback: string;
   },
-  store: Store = 'APPSTORE'
+  store: Store = Store.APPSTORE
 ): Promise<
   typeof store extends 'APPSTORE'
     ? z.infer<typeof ContentsResponseSchemaForAppStore>
@@ -75,7 +91,7 @@ export async function generateContents(
       content: systemPrompt
         .render({
           locale: getLocaleName(locale),
-          appStore: store === 'APPSTORE',
+          appStore: store === Store.APPSTORE,
           forTitle,
           forSubtitle,
           forDescription,
@@ -113,7 +129,7 @@ export async function generateContents(
     model: 'gpt-4.1',
     messages,
     response_format:
-      store === 'APPSTORE'
+      store === Store.APPSTORE
         ? zodResponseFormat(ContentsResponseSchemaForAppStore, 'contents')
         : zodResponseFormat(ContentsResponseSchemaForGooglePlay, 'contents'),
   });
@@ -186,7 +202,7 @@ export async function generateDescription(
   console.log(JSON.stringify(messages, null, 2));
 
   const response = await openai.chat.completions.create({
-    model: shouldUseO1Series ? 'o1-mini' : 'gpt-4o',
+    model: LLM_MODEL,
     messages,
   });
 

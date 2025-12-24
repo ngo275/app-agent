@@ -165,6 +165,18 @@ export default function AppLocalizations({
     (locale: string) => {
       const localization =
         localizations[locale]?.draft || localizations[locale]?.public;
+
+      // Return fields based on store type
+      if (appInfo?.currentApp?.store === 'GOOGLEPLAY') {
+        return {
+          title: localization?.title || '',
+          shortDescription: localization?.shortDescription || '',
+          fullDescription:
+            localization?.fullDescription || localization?.description || '',
+        };
+      }
+
+      // App Store fields
       return {
         title: localization?.title || '',
         subtitle: localization?.subtitle || '',
@@ -172,7 +184,7 @@ export default function AppLocalizations({
         keywords: localization?.keywords || '',
       };
     },
-    [localizations]
+    [localizations, appInfo?.currentApp?.store]
   );
 
   const handleASOUpdate = (locale: string, updatedMetadata: AsoContent) => {
@@ -262,33 +274,39 @@ export default function AppLocalizations({
           </Alert>
         )}
 
-        {Object.entries(localizations).map(
-          ([locale, data]) =>
-            data.draft && (
-              <div key={locale} className="space-y-2">
-                <AppLocalizationView
-                  localization={data.draft}
-                  originalData={data.public}
-                  onUpdate={(updatedData) =>
-                    updateLocalLocalizations(locale, updatedData)
-                  }
-                  mode={currentStep.mode!}
-                  defaultExpanded={
-                    // currentStep.mode !== LocalizationEditMode.IMPROVE_ASO ||
-                    expandedLocale === locale
-                  }
-                  onASOClick={
-                    currentStep.mode === LocalizationEditMode.IMPROVE_ASO
-                      ? () => {
-                          setSelectedLocaleForASO(locale as LocaleCode);
-                          setShowASOModal(true);
-                        }
-                      : undefined
-                  }
-                />
-              </div>
-            )
-        )}
+        {Object.entries(localizations).map(([locale, data]) => {
+          // For Google Play, we might only have public version (no draft)
+          // For App Store, we prefer draft over public
+          const localization = data.draft || data.public;
+
+          if (!localization) return null;
+
+          return (
+            <div key={locale} className="space-y-2">
+              <AppLocalizationView
+                localization={localization}
+                originalData={data.public}
+                onUpdate={(updatedData) =>
+                  updateLocalLocalizations(locale, updatedData)
+                }
+                mode={currentStep.mode!}
+                defaultExpanded={
+                  // currentStep.mode !== LocalizationEditMode.IMPROVE_ASO ||
+                  expandedLocale === locale
+                }
+                onASOClick={
+                  currentStep.mode === LocalizationEditMode.IMPROVE_ASO
+                    ? () => {
+                        setSelectedLocaleForASO(locale as LocaleCode);
+                        setShowASOModal(true);
+                      }
+                    : undefined
+                }
+                store={appInfo?.currentApp?.store}
+              />
+            </div>
+          );
+        })}
 
         <Dialog open={isLocaleDialogOpen} onOpenChange={setIsLocaleDialogOpen}>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>

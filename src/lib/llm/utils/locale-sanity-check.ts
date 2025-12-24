@@ -1,3 +1,4 @@
+import { LLM_MODEL } from '@/lib/config';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
 import { keywordFinalSanityCheckPrompt } from '@/lib/llm/prompts/keyword';
@@ -30,7 +31,7 @@ export const localeSanityCheck = async (
   ] as ChatCompletionMessageParam[];
 
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4.1-mini',
+    model: LLM_MODEL,
     messages,
     response_format: zodResponseFormat(IndicesResponseSchema, 'indices'),
   });
@@ -63,7 +64,7 @@ export const keywordFinalSanityCheck = async (
   ] as ChatCompletionMessageParam[];
 
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4.1-mini',
+    model: LLM_MODEL,
     messages,
     response_format: zodResponseFormat(IndicesResponseSchema, 'indices'),
   });

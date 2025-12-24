@@ -1,4 +1,4 @@
-import { LocaleCode } from '@/lib/utils/locale';
+import { AppStoreLocaleCode } from '@/lib/utils/locale';
 import {
   getCountryCode,
   getLocaleString,
@@ -99,7 +99,7 @@ function calculateScores(
 }
 
 export async function scoreKeyword(
-  locale: LocaleCode,
+  locale: AppStoreLocaleCode,
   keyword: string,
   myAppId: string
 ): Promise<KeywordScore> {

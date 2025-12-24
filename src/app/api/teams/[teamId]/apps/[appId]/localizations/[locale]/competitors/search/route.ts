@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LocaleCode } from '@/lib/utils/locale';
-import { searchApps } from '@/lib/app-store/search-apps';
-import { getLocaleString } from '@/lib/app-store/country-mapper';
-import { getCountryCode } from '@/lib/app-store/country-mapper';
+import { Store } from '@prisma/client';
+import { googlePlayToAppStore } from '@/lib/utils/locale';
+import { searchApps as searchAppStoreApps } from '@/lib/app-store/search-apps';
+import { getLocaleString as getAppStoreLocaleString } from '@/lib/app-store/country-mapper';
+import { getCountryCode as getAppStoreCountryCode } from '@/lib/app-store/country-mapper';
+import { searchApps as searchGooglePlayApps } from '@/lib/google-play/search-apps';
 
 export const maxDuration = 30;
 
@@ -11,7 +13,11 @@ export async function POST(
   { params }: { params: { teamId: string; appId: string; locale: string } }
 ) {
   try {
-    const { term, store = 'APPSTORE', platform = 'IOS' } = await request.json();
+    const {
+      term,
+      store = Store.APPSTORE,
+      platform = 'IOS',
+    } = await request.json();
 
     if (!term) {
       return NextResponse.json(
@@ -20,15 +26,29 @@ export async function POST(
       );
     }
 
-    // This is only for App Store
-    const results = await searchApps({
-      country: getCountryCode(params.locale as LocaleCode),
-      language: getLocaleString(params.locale as LocaleCode),
-      term,
-      num: 10,
-    });
+    let apps;
 
-    const apps = results.apps;
+    if (store === Store.GOOGLEPLAY) {
+      // Search on Google Play Store
+      const results = await searchGooglePlayApps({
+        term,
+        num: 10,
+        lang: params.locale.split('-')[0],
+        country: params.locale.split('-')[1]?.toLowerCase() || 'us',
+      });
+      apps = results.apps;
+    } else {
+      // Search on App Store
+      // Convert Google Play locale to App Store locale if needed
+      const appStoreLocale = googlePlayToAppStore(params.locale);
+      const results = await searchAppStoreApps({
+        country: getAppStoreCountryCode(appStoreLocale),
+        language: getAppStoreLocaleString(appStoreLocale),
+        term,
+        num: 10,
+      });
+      apps = results.apps;
+    }
 
     return NextResponse.json(apps);
   } catch (error) {

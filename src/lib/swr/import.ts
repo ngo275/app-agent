@@ -28,6 +28,31 @@ export function useCheckExistingKey() {
   };
 }
 
+export function useCheckGooglePlayKey() {
+  const teamInfo = useTeam();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { data, error, mutate, isLoading } = useSWR<{ hasKey: boolean }>(
+    teamInfo?.currentTeam?.id
+      ? `/api/teams/${teamInfo.currentTeam.id}/google-play/key`
+      : null,
+    fetcher
+  );
+
+  const refresh = async () => {
+    setIsRefreshing(true);
+    await mutate();
+    setIsRefreshing(false);
+  };
+
+  return {
+    hasKey: data?.hasKey,
+    error,
+    loading: isLoading,
+    isRefreshing,
+    refresh,
+  };
+}
+
 export async function importAppsFromAppStoreConnect(
   teamId: string,
   appIds: string[]

@@ -6,10 +6,11 @@ import {
   handleAppError,
   InvalidParamsError,
 } from '@/types/errors';
-import { LocaleCode } from '@/lib/utils/locale';
+import { googlePlayToAppStore } from '@/lib/utils/locale';
 import { searchApps } from '@/lib/app-store/search-apps';
 import { findCompetitors } from '@/lib/aso/keyword-hunt/find-competitors';
-import { draftVersion } from '@/lib/utils/versions';
+import { draftVersion, publicVersion } from '@/lib/utils/versions';
+import { Store } from '@/types/aso';
 
 export const maxDuration = 300;
 
@@ -41,12 +42,10 @@ export async function POST(
       },
       include: {
         versions: {
-          where: {
-            state: {
-              in: ['PREPARE_FOR_SUBMISSION', 'REJECTED', 'DEVELOPER_REJECTED'],
-            },
+          orderBy: {
+            createdAt: 'desc',
           },
-          take: 1,
+          take: 10, // Get more versions to find either draft or public
         },
       },
     });
@@ -55,11 +54,21 @@ export async function POST(
       throw new AppNotFoundError(`App ${appId} not found`);
     }
 
-    const draftAppVersion = app.versions.find(
-      (v) => v.state && draftVersion(v.state)
-    );
-    if (!draftAppVersion) {
-      throw new InvalidParamsError('No draft version found for this app');
+    // For Google Play, we can use public versions
+    // For App Store, we prefer draft versions
+    let appVersion = app.versions.find((v) => v.state && draftVersion(v.state));
+
+    if (!appVersion && app.store === Store.GOOGLEPLAY) {
+      // If no draft, use public version for Google Play
+      appVersion = app.versions.find((v) => v.state && publicVersion(v.state));
+    }
+
+    if (!appVersion) {
+      throw new InvalidParamsError(
+        app.store === Store.GOOGLEPLAY
+          ? 'No version found for this app'
+          : 'No draft version found for this app'
+      );
     }
 
     // Save shortDescription to database
@@ -83,11 +92,15 @@ export async function POST(
             },
           };
 
+          // Convert Google Play locale to App Store locale for competitor research
+          const appStoreLocale = googlePlayToAppStore(locale);
+
           const result = await findCompetitors(
             appId,
-            locale as LocaleCode,
+            appStoreLocale,
             data.shortDescription,
-            writer
+            writer,
+            locale // Pass original locale for DB lookup
           );
           controller.close();
         } catch (err) {

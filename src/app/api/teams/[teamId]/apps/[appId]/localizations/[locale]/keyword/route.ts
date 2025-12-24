@@ -1,5 +1,5 @@
 import { validateTeamAccess } from '@/lib/auth';
-import { LocaleCode } from '@/lib/utils/locale';
+import { googlePlayToAppStore } from '@/lib/utils/locale';
 import prisma from '@/lib/prisma';
 import {
   AppNotFoundError,
@@ -14,7 +14,7 @@ export const maxDuration = 300;
 // Return all keywords for an app and locale
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: LocaleCode } }
+  { params }: { params: { teamId: string; appId: string; locale: string } }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
@@ -75,17 +75,20 @@ export async function POST(
       throw new AppNotFoundError(`App ${appId} not found`);
     }
 
-    // Score the keyword
-    const score = await scoreKeyword(locale as LocaleCode, term, appId);
+    // Convert Google Play locale to App Store locale for scoring
+    const appStoreLocale = googlePlayToAppStore(locale);
 
-    // Store the keyword score in the database
+    // Score the keyword
+    const score = await scoreKeyword(appStoreLocale, term, appId);
+
+    // Store the keyword score in the database (using original locale string)
     const keyword = await prisma.asoKeyword.upsert({
       where: {
         appId_store_platform_locale_keyword: {
           appId,
           store: app.store,
           platform: app.platform,
-          locale: locale as LocaleCode,
+          locale: locale,
           keyword: term,
         },
       },
@@ -99,7 +102,7 @@ export async function POST(
         appId,
         store: app.store,
         platform: app.platform,
-        locale: locale as LocaleCode,
+        locale: locale,
         keyword: term,
         trafficScore: score.trafficScore,
         difficultyScore: score.difficultyScore,

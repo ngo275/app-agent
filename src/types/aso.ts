@@ -2,17 +2,21 @@ import {
   App as PrismaApp,
   AppVersion as PrismaAppVersion,
   AppLocalization as PrismaAppLocalization,
-  Platform as PrismaPlatform,
-  Store as PrismaStore,
   AsoKeyword as PrismaAsoKeyword,
   Competitor as PrismaCompetitor,
 } from '@prisma/client';
+
+// Re-export Store and Platform both as types and as enums
+export { Store, Platform } from '@prisma/client';
 
 export enum AsoTarget {
   title = 'title',
   subtitle = 'subtitle',
   description = 'description',
   keywords = 'keywords',
+  // Google Play specific targets
+  shortDescription = 'shortDescription',
+  fullDescription = 'fullDescription',
 }
 
 export type AsoContent = {
@@ -20,6 +24,9 @@ export type AsoContent = {
   subtitle: string;
   description: string;
   keywords: string;
+  // Google Play specific fields
+  shortDescription?: string;
+  fullDescription?: string;
 };
 
 export type CompetitorKeyword = {
@@ -49,8 +56,6 @@ export type AppLocalization = PrismaAppLocalization & {
   appVersion?: AppVersion;
   app?: App;
 };
-export type Store = PrismaStore;
-export type Platform = PrismaPlatform;
 export type AsoKeyword = PrismaAsoKeyword & {
   app?: App;
 };

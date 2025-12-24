@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { validateTeamAccess } from "@/lib/auth";
 import { AppNotFoundError, handleAppError } from "@/types/errors";
 import prisma from "@/lib/prisma";
+import { Store } from "@prisma/client";
 
 // Get builds for a pre-release version
 export async function GET(request: Request, { params }: { params: { teamId: string; appId: string; versionId: string } }) {
@@ -16,13 +17,23 @@ export async function GET(request: Request, { params }: { params: { teamId: stri
         id: appId,
         teamId: teamId,
       },
+      select: {
+        id: true,
+        store: true,
+      },
     });
 
     if (!app) {
       throw new AppNotFoundError('App not found');
     }
 
-    // Get builds for pre-release version
+    // Only fetch builds for App Store apps
+    // Google Play doesn't have a direct equivalent to pre-release builds
+    if (app.store === Store.GOOGLEPLAY) {
+      return NextResponse.json([]);
+    }
+
+    // Get builds for pre-release version (App Store only)
     const builds = await getBuildsForPreReleaseVersion(appStoreConnectJWT, appId, versionId);
 
     return NextResponse.json(builds);
@@ -44,13 +55,23 @@ export async function POST(request: Request, { params }: { params: { teamId: str
         id: appId,
         teamId: teamId,
       },
+      select: {
+        id: true,
+        store: true,
+      },
     });
 
     if (!app) {
       throw new AppNotFoundError('App not found');
     }
 
-    // Select build for pre-release version
+    // Only select builds for App Store apps
+    // Google Play doesn't have a direct equivalent to pre-release builds
+    if (app.store === Store.GOOGLEPLAY) {
+      return NextResponse.json({ success: true });
+    }
+
+    // Select build for pre-release version (App Store only)
     const build = await selectBuildForVersion(appStoreConnectJWT, versionId, buildId);
 
     return NextResponse.json(build);

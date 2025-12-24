@@ -1,4 +1,4 @@
-import { LocaleCode } from '@/lib/utils/locale';
+import { AppStoreLocaleCode } from '@/lib/utils/locale';
 import { AppStoreApp } from '@/types/app-store';
 import { getSimilarApps } from '@/lib/app-store/similar-apps';
 import { searchApps } from '@/lib/app-store/search-apps';
@@ -23,15 +23,20 @@ interface CompetitorSearchResult {
  */
 export async function findCompetitors(
   appId: string,
-  locale: LocaleCode,
+  locale: AppStoreLocaleCode,
   shortDescription: string,
-  writer?: { write: (data: any) => void }
+  writer?: { write: (data: any) => void },
+  originalLocale?: string // Add optional parameter for original locale from DB
 ): Promise<CompetitorSearchResult> {
   const MAX_COMPETITORS = 30;
   let TOTAL_STEPS = 7; // This must be incremented when additional steps are added
   let currentStep = 0;
 
-  const appLocalization = await getAppLocalization(appId, locale);
+  // Use originalLocale for DB lookup, locale for App Store API calls
+  const appLocalization = await getAppLocalization(
+    appId,
+    originalLocale || locale
+  );
   const title = appLocalization.title || appLocalization.app?.title || '';
   if (!title) {
     throw new InvalidParamsError(`App title not found`);

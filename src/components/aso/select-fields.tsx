@@ -11,12 +11,7 @@ interface SelectFieldsProps {
   store: Store;
   currentValues: AsoContent;
   onGenerate: (
-    selectedFields: {
-      title: boolean;
-      subtitle: boolean;
-      description: boolean;
-      keywords: boolean;
-    },
+    selectedFields: Record<string, boolean>,
     outline: string
   ) => Promise<any>;
 }
@@ -27,16 +22,28 @@ export default function SelectFields({
   onGenerate,
 }: SelectFieldsProps) {
   const t = useTranslations('aso');
-  const [selectedFields, setSelectedFields] = useState({
-    title: true,
-    subtitle: true,
-    description: true,
-    keywords: true,
-  });
+  const isGooglePlay = store === Store.GOOGLEPLAY;
+
+  // Define fields based on store type
+  const defaultFields = isGooglePlay
+    ? {
+        title: true,
+        shortDescription: true,
+        fullDescription: true,
+      }
+    : {
+        title: true,
+        subtitle: true,
+        description: true,
+        keywords: true,
+      };
+
+  const [selectedFields, setSelectedFields] =
+    useState<Record<string, boolean>>(defaultFields);
   const [outline, setOutline] = useState('');
 
   const handleGenerate = () => {
-    onGenerate(selectedFields, outline);
+    onGenerate(selectedFields as any, outline);
   };
 
   const isAnyFieldSelected = Object.values(selectedFields).some(
@@ -58,49 +65,52 @@ export default function SelectFields({
       transition={{ duration: 0.3 }}
     >
       <div className="space-y-3">
-        {Object.entries(selectedFields)
-          .filter(([field]) => field !== 'keywords' || store === 'APPSTORE')
-          .map(([field, checked]) => (
-            <motion.div
-              key={field}
-              className="flex flex-col space-y-2 p-4 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
-              onClick={() => {
-                setSelectedFields((prev) => ({ ...prev, [field]: !checked }));
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id={field}
-                    checked={checked}
-                    onCheckedChange={(checked) =>
-                      setSelectedFields((prev) => ({
-                        ...prev,
-                        [field]: !!checked,
-                      }))
-                    }
-                    className="h-5 w-5"
-                  />
-                  <Label className="text-sm font-medium">
-                    {t(`${field}-label`)}
-                  </Label>
-                </div>
+        {Object.entries(selectedFields).map(([field, checked]) => (
+          <motion.div
+            key={field}
+            className="flex flex-col space-y-2 p-4 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
+            onClick={() => {
+              setSelectedFields((prev) => ({ ...prev, [field]: !checked }));
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Checkbox
+                  id={field}
+                  checked={checked}
+                  onCheckedChange={(checked) =>
+                    setSelectedFields((prev) => ({
+                      ...prev,
+                      [field]: !!checked,
+                    }))
+                  }
+                  className="h-5 w-5"
+                />
+                <Label className="text-sm font-medium">
+                  {t(`${field}-label`)}
+                </Label>
               </div>
+            </div>
 
-              <div className="pl-8">
-                <p className="text-sm text-muted-foreground">
-                  {t('current', {
-                    current: getPreviewText(
-                      currentValues[field as keyof typeof currentValues]
-                    ),
-                  })}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+            <div className="pl-8">
+              <p className="text-sm text-muted-foreground">
+                {t('current', {
+                  current: getPreviewText(
+                    currentValues[field as keyof typeof currentValues]
+                  ),
+                })}
+              </p>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
-      {selectedFields.description && !currentValues.description && (
+      {((isGooglePlay &&
+        selectedFields.fullDescription &&
+        !currentValues.fullDescription) ||
+        (!isGooglePlay &&
+          selectedFields.description &&
+          !currentValues.description)) && (
         <motion.div
           className="space-y-2"
           initial={{ opacity: 0, height: 0 }}

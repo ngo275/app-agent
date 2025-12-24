@@ -32,18 +32,30 @@ export default function GooglePlayAppsGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {apps.map((app) => (
           <div
-            key={app.id}
+            key={app.appId}
             className={`p-4 border rounded-lg cursor-pointer ${
-              selectedApps.includes(app.id)
+              selectedApps.includes(app.appId)
                 ? 'border-blue-500 bg-blue-50'
                 : 'hover:bg-gray-50'
             }`}
-            onClick={() => onAppSelection(app.id)}
+            onClick={() => onAppSelection(app.appId)}
           >
             <div className="flex items-center space-x-4">
+              {app.icon && (
+                <Image
+                  src={app.icon}
+                  alt={app.title}
+                  width={48}
+                  height={48}
+                  className="rounded-lg"
+                />
+              )}
               <div>
                 <h3 className="font-semibold">{app.title}</h3>
-                <p className="text-sm text-gray-600">{app.packageName}</p>
+                <p className="text-sm text-gray-600">{app.appId}</p>
+                {app.developer && (
+                  <p className="text-xs text-gray-500">{app.developer}</p>
+                )}
               </div>
             </div>
           </div>

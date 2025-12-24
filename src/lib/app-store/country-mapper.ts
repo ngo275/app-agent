@@ -1,96 +1,96 @@
 import { Country } from 'app-store-client';
-import { LocaleCode } from '@/lib/utils/locale';
+import { AppStoreLocaleCode } from '@/lib/utils/locale';
 
-export function getCountryCode(locale: LocaleCode): Country {
+export function getCountryCode(locale: AppStoreLocaleCode): Country {
   switch (locale) {
     // English variants
-    case LocaleCode.EN:
+    case AppStoreLocaleCode.EN:
       return Country.US;
-    case LocaleCode.EN_GB:
+    case AppStoreLocaleCode.EN_GB:
       return Country.GB;
-    case LocaleCode.EN_AU:
+    case AppStoreLocaleCode.EN_AU:
       return Country.AU;
-    case LocaleCode.EN_CA:
+    case AppStoreLocaleCode.EN_CA:
       return Country.CA;
 
     // Chinese variants
-    case LocaleCode.ZH_HANS:
+    case AppStoreLocaleCode.ZH_HANS:
       return Country.CN;
-    case LocaleCode.ZH_HANT:
+    case AppStoreLocaleCode.ZH_HANT:
       return Country.TW;
 
     // Spanish variants
-    case LocaleCode.ES:
+    case AppStoreLocaleCode.ES:
       return Country.ES;
-    case LocaleCode.ES_MX:
+    case AppStoreLocaleCode.ES_MX:
       return Country.MX;
 
     // French variants
-    case LocaleCode.FR:
+    case AppStoreLocaleCode.FR:
       return Country.FR;
-    case LocaleCode.FR_CA:
+    case AppStoreLocaleCode.FR_CA:
       return Country.CA;
 
     // Portuguese variants
-    case LocaleCode.PT:
+    case AppStoreLocaleCode.PT:
       return Country.PT;
-    case LocaleCode.PT_BR:
+    case AppStoreLocaleCode.PT_BR:
       return Country.BR;
 
     // Other languages - mapping to primary country where the language is spoken
-    case LocaleCode.AR:
+    case AppStoreLocaleCode.AR:
       return Country.SA;
-    case LocaleCode.CA:
+    case AppStoreLocaleCode.CA:
       return Country.ES; // Catalan -> Spain
-    case LocaleCode.HR:
+    case AppStoreLocaleCode.HR:
       return Country.HR;
-    case LocaleCode.CS:
+    case AppStoreLocaleCode.CS:
       return Country.CZ;
-    case LocaleCode.DA:
+    case AppStoreLocaleCode.DA:
       return Country.DK;
-    case LocaleCode.NL:
+    case AppStoreLocaleCode.NL:
       return Country.NL;
-    case LocaleCode.FI:
+    case AppStoreLocaleCode.FI:
       return Country.FI;
-    case LocaleCode.DE:
+    case AppStoreLocaleCode.DE:
       return Country.DE;
-    case LocaleCode.EL:
+    case AppStoreLocaleCode.EL:
       return Country.GR;
-    case LocaleCode.HE:
+    case AppStoreLocaleCode.HE:
       return Country.IL;
-    case LocaleCode.HI:
+    case AppStoreLocaleCode.HI:
       return Country.IN;
-    case LocaleCode.HU:
+    case AppStoreLocaleCode.HU:
       return Country.HU;
-    case LocaleCode.ID:
+    case AppStoreLocaleCode.ID:
       return Country.ID;
-    case LocaleCode.IT:
+    case AppStoreLocaleCode.IT:
       return Country.IT;
-    case LocaleCode.JA:
+    case AppStoreLocaleCode.JA:
       return Country.JP;
-    case LocaleCode.KO:
+    case AppStoreLocaleCode.KO:
       return Country.KR;
-    case LocaleCode.MS:
+    case AppStoreLocaleCode.MS:
       return Country.MY;
-    case LocaleCode.NO:
+    case AppStoreLocaleCode.NO:
       return Country.NO;
-    case LocaleCode.PL:
+    case AppStoreLocaleCode.PL:
       return Country.PL;
-    case LocaleCode.RO:
+    case AppStoreLocaleCode.RO:
       return Country.RO;
-    case LocaleCode.RU:
+    case AppStoreLocaleCode.RU:
       return Country.RU;
-    case LocaleCode.SK:
+    case AppStoreLocaleCode.SK:
       return Country.SK;
-    case LocaleCode.SV:
+    case AppStoreLocaleCode.SV:
       return Country.SE;
-    case LocaleCode.TH:
+    case AppStoreLocaleCode.TH:
       return Country.TH;
-    case LocaleCode.TR:
+    case AppStoreLocaleCode.TR:
       return Country.TR;
-    case LocaleCode.UK:
+    case AppStoreLocaleCode.UK:
       return Country.UA;
-    case LocaleCode.VI:
+    case AppStoreLocaleCode.VI:
       return Country.VN;
 
     default:
@@ -98,11 +98,11 @@ export function getCountryCode(locale: LocaleCode): Country {
   }
 }
 
-export function getLocaleString(locale: LocaleCode): string {
-  if (locale === LocaleCode.ZH_HANS) {
+export function getLocaleString(locale: AppStoreLocaleCode): string {
+  if (locale === AppStoreLocaleCode.ZH_HANS) {
     return 'zh-CN';
   }
-  if (locale === LocaleCode.ZH_HANT) {
+  if (locale === AppStoreLocaleCode.ZH_HANT) {
     return 'zh-TW';
   }
   return locale.toString().toLowerCase();

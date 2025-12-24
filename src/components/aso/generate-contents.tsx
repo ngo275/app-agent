@@ -16,12 +16,7 @@ interface GenerateContentsProps {
   store: Store;
   generatedContent: AsoContent;
   onRegenerate: (
-    selectedFields: {
-      title: boolean;
-      subtitle: boolean;
-      description: boolean;
-      keywords: boolean;
-    },
+    selectedFields: Record<string, boolean>,
     feedback: string,
     previousResults: AsoContent
   ) => Promise<any>;
@@ -38,15 +33,26 @@ export default function GenerateContentsView({
   onClose,
 }: GenerateContentsProps) {
   const t = useTranslations('aso');
+  const isGooglePlay = store === Store.GOOGLEPLAY;
   const [localContent, setLocalContent] =
     useState<AsoContent>(generatedContent);
   const [feedback, setFeedback] = useState('');
-  const [selectedFields, setSelectedFields] = useState({
-    title: true,
-    subtitle: true,
-    description: true,
-    keywords: store === 'APPSTORE',
-  });
+
+  // Define selected fields based on store type
+  const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>(
+    isGooglePlay
+      ? {
+          title: true,
+          shortDescription: true,
+          fullDescription: true,
+        }
+      : {
+          title: true,
+          subtitle: true,
+          description: true,
+          keywords: true,
+        }
+  );
 
   useEffect(() => {
     setLocalContent(generatedContent);
@@ -82,55 +88,68 @@ export default function GenerateContentsView({
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          {Object.entries(localContent).map(
-            ([field, content]) =>
-              selectedFields[field as keyof typeof selectedFields] && (
-                <motion.div key={field} variants={itemVariants}>
-                  <Card className="p-4 space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label htmlFor={field} className="text-sm font-medium">
-                        {field.charAt(0).toUpperCase() + field.slice(1)}
-                      </Label>
-                      <CharacterCount
-                        current={content.length}
-                        limit={FIELD_LIMITS[field as keyof typeof FIELD_LIMITS]}
-                      />
-                    </div>
-                    {field === 'description' ? (
-                      <Textarea
-                        id={field}
-                        value={content}
-                        rows={6}
-                        onChange={(e) => {
-                          setLocalContent((prev) => ({
-                            ...prev,
-                            [field]: e.target.value,
-                          }));
-                        }}
-                        className="resize-none"
-                        maxLength={
-                          FIELD_LIMITS[field as keyof typeof FIELD_LIMITS]
-                        }
-                      />
-                    ) : (
-                      <Input
-                        id={field}
-                        value={content}
-                        onChange={(e) => {
-                          setLocalContent((prev) => ({
-                            ...prev,
-                            [field]: e.target.value,
-                          }));
-                        }}
-                        maxLength={
-                          FIELD_LIMITS[field as keyof typeof FIELD_LIMITS]
-                        }
-                      />
-                    )}
-                  </Card>
-                </motion.div>
-              )
-          )}
+          {Object.entries(localContent).map(([field, content]) => {
+            // Only show field if it's selected
+            if (!selectedFields[field]) return null;
+
+            // Determine field limits
+            const getFieldLimit = (fieldName: string) => {
+              if (fieldName === 'shortDescription') return 80;
+              if (fieldName === 'fullDescription') return 4000;
+              return FIELD_LIMITS[fieldName as keyof typeof FIELD_LIMITS];
+            };
+
+            // Determine if field should use textarea
+            const isTextarea =
+              field === 'description' ||
+              field === 'fullDescription' ||
+              field === 'shortDescription';
+
+            const fieldLimit = getFieldLimit(field);
+
+            return (
+              <motion.div key={field} variants={itemVariants}>
+                <Card className="p-4 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor={field} className="text-sm font-medium">
+                      {t(`${field}-label`)}
+                    </Label>
+                    <CharacterCount
+                      current={content?.length || 0}
+                      limit={fieldLimit}
+                    />
+                  </div>
+                  {isTextarea ? (
+                    <Textarea
+                      id={field}
+                      value={content || ''}
+                      rows={field === 'fullDescription' ? 10 : 3}
+                      onChange={(e) => {
+                        setLocalContent((prev) => ({
+                          ...prev,
+                          [field]: e.target.value,
+                        }));
+                      }}
+                      className="resize-none"
+                      maxLength={fieldLimit}
+                    />
+                  ) : (
+                    <Input
+                      id={field}
+                      value={content || ''}
+                      onChange={(e) => {
+                        setLocalContent((prev) => ({
+                          ...prev,
+                          [field]: e.target.value,
+                        }));
+                      }}
+                      maxLength={fieldLimit}
+                    />
+                  )}
+                </Card>
+              </motion.div>
+            );
+          })}
 
           <motion.div variants={itemVariants} className="space-y-2">
             <div className="flex justify-between items-center">

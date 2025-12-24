@@ -110,28 +110,116 @@ export async function POST(
       );
     }
 
-    // Update all localizations
+    console.log(
+      'Received localizations:',
+      JSON.stringify(localizations, null, 2)
+    );
+
+    // Get the latest editable version for this app to use as default appVersionId
+    // For App Store: draft states (PREPARE_FOR_SUBMISSION, READY_FOR_REVIEW, etc.)
+    // For Google Play: draft or completed states (can be edited directly)
+    const latestEditableVersion = await prisma.appVersion.findFirst({
+      where: {
+        appId: appId,
+        OR: [
+          // App Store draft states
+          { state: 'PREPARE_FOR_SUBMISSION' },
+          { state: 'DEVELOPER_REMOVED_FROM_SALE' },
+          { state: 'WAITING_FOR_REVIEW' },
+          { state: 'IN_REVIEW' },
+          { state: 'PENDING_DEVELOPER_RELEASE' },
+          { state: 'READY_FOR_REVIEW' },
+          { state: 'REJECTED' },
+          { state: 'METADATA_REJECTED' },
+          { state: 'PENDING_CONTRACT' },
+          { state: 'WAITING_FOR_EXPORT_COMPLIANCE' },
+          // Google Play states
+          { state: 'draft' },
+          { state: 'completed' },
+          { state: 'inProgress' },
+        ],
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!latestEditableVersion) {
+      throw new InvalidParamsError(
+        'No editable version found for this app. Please pull the latest version first.'
+      );
+    }
+
+    console.log('Using editable version:', latestEditableVersion.id);
+
+    // Get existing localizations from DB to enrich the data if needed
+    const existingLocalizations = await prisma.appLocalization.findMany({
+      where: {
+        appId: appId,
+        appVersionId: latestEditableVersion.id,
+      },
+      select: { id: true, appVersionId: true, locale: true },
+    });
+
+    console.log(
+      'Existing localizations:',
+      JSON.stringify(existingLocalizations, null, 2)
+    );
+
+    // Update all localizations - use upsert to handle both create and update
     const updatedLocalizations = await Promise.all(
-      localizations.map((localization) =>
-        prisma.appLocalization.update({
+      localizations.map((localization) => {
+        console.log(
+          'Processing localization:',
+          JSON.stringify(localization, null, 2)
+        );
+
+        // Use the editable version ID as default
+        const appVersionId =
+          localization.appVersionId || latestEditableVersion.id;
+        const locale = localization.locale;
+
+        console.log('Using appVersionId:', appVersionId, 'locale:', locale);
+
+        // Validate that we have the minimum required fields
+        if (!appVersionId || !locale) {
+          throw new InvalidParamsError(
+            'Each localization must have locale field'
+          );
+        }
+
+        const updateData = {
+          title: localization.title,
+          subtitle: localization.subtitle,
+          shortDescription: localization.shortDescription,
+          fullDescription: localization.fullDescription,
+          privacyPolicyUrl: localization.privacyPolicyUrl,
+          privacyChoicesUrl: localization.privacyChoicesUrl,
+          privacyPolicyText: localization.privacyPolicyText,
+          description: localization.description,
+          keywords: localization.keywords,
+          marketingUrl: localization.marketingUrl,
+          promotionalText: localization.promotionalText,
+          supportUrl: localization.supportUrl,
+          whatsNew: localization.whatsNew,
+        };
+
+        return prisma.appLocalization.upsert({
           where: {
-            id: localization.id,
+            appVersionId_locale: {
+              appVersionId: appVersionId,
+              locale: locale,
+            },
           },
-          data: {
-            title: localization.title,
-            subtitle: localization.subtitle,
-            privacyPolicyUrl: localization.privacyPolicyUrl,
-            privacyChoicesUrl: localization.privacyChoicesUrl,
-            privacyPolicyText: localization.privacyPolicyText,
-            description: localization.description,
-            keywords: localization.keywords,
-            marketingUrl: localization.marketingUrl,
-            promotionalText: localization.promotionalText,
-            supportUrl: localization.supportUrl,
-            whatsNew: localization.whatsNew,
+          update: updateData,
+          create: {
+            appId: appId,
+            appVersionId: appVersionId,
+            locale: locale,
+            ...updateData,
           },
-        })
-      )
+        });
+      })
     );
 
     // Update app info

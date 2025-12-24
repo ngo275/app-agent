@@ -211,12 +211,7 @@ export function ASOModal({
   };
 
   const handleContentOptimization = async (
-    selectedFields: {
-      title: boolean;
-      subtitle: boolean;
-      description: boolean;
-      keywords: boolean;
-    },
+    selectedFields: Record<string, boolean>,
     outline: string
   ) => {
     if (!teamInfo?.currentTeam?.id || !appInfo.currentApp?.id) return;
@@ -231,10 +226,12 @@ export function ASOModal({
     });
 
     const targets: AsoTarget[] = [];
-    if (selectedFields.title) targets.push(AsoTarget.title);
-    if (selectedFields.subtitle) targets.push(AsoTarget.subtitle);
-    if (selectedFields.description) targets.push(AsoTarget.description);
-    if (selectedFields.keywords) targets.push(AsoTarget.keywords);
+    // Map selected fields to AsoTarget enum values
+    Object.keys(selectedFields).forEach((field) => {
+      if (selectedFields[field] && field in AsoTarget) {
+        targets.push(AsoTarget[field as keyof typeof AsoTarget]);
+      }
+    });
 
     try {
       const result = await optimizeContents(
@@ -247,7 +244,11 @@ export function ASOModal({
         initialValues.subtitle,
         initialValues.keywords,
         initialValues.description,
-        outline
+        outline,
+        undefined, // previousResult
+        undefined, // userFeedback
+        initialValues.shortDescription,
+        initialValues.fullDescription
       );
       setGeneratedContent(result);
       analytics.capture('Content Optimization Completed', {
@@ -265,12 +266,7 @@ export function ASOModal({
   };
 
   const handleRegenerate = async (
-    selectedFields: {
-      title: boolean;
-      subtitle: boolean;
-      description: boolean;
-      keywords: boolean;
-    },
+    selectedFields: Record<string, boolean>,
     feedback: string,
     previousResults: typeof initialValues
   ) => {
@@ -278,10 +274,12 @@ export function ASOModal({
     setIsGenerating(true);
 
     const targets: AsoTarget[] = [];
-    if (selectedFields.title) targets.push(AsoTarget.title);
-    if (selectedFields.subtitle) targets.push(AsoTarget.subtitle);
-    if (selectedFields.description) targets.push(AsoTarget.description);
-    if (selectedFields.keywords) targets.push(AsoTarget.keywords);
+    // Map selected fields to AsoTarget enum values
+    Object.keys(selectedFields).forEach((field) => {
+      if (selectedFields[field] && field in AsoTarget) {
+        targets.push(AsoTarget[field as keyof typeof AsoTarget]);
+      }
+    });
 
     try {
       const result = await optimizeContents(

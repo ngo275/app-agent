@@ -12,6 +12,7 @@ import {
 } from '@/lib/swr/app';
 import {
   useCheckExistingKey,
+  useCheckGooglePlayKey,
   importAppsFromAppStoreConnect,
   importAppsFromGooglePlay,
 } from '@/lib/swr/import';
@@ -22,6 +23,8 @@ import { AppStoreConnectAgreementError } from '@/components/app-store-connect/ap
 import { Store } from '@/types/aso';
 import GooglePlayConnect from '../google-play/connect';
 import GooglePlayAppsGrid from '../google-play/apps-grid';
+import GooglePlayKeyUpload from '../google-play/key-upload';
+import PackageNameInput from '../google-play/package-name-input';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -60,12 +63,18 @@ export default function ImportApps() {
     isRefreshing,
     refresh: refreshKey,
   } = useCheckExistingKey();
+  const {
+    hasKey: isGooglePlayKeyUploaded,
+    loading: isLoadingGooglePlayKey,
+    refresh: refreshGooglePlayKey,
+  } = useCheckGooglePlayKey();
   const { apps: googlePlayApps, loading: loadingGooglePlayApps } =
     useGetAppsFromGooglePlay();
+  const [loadedGooglePlayApps, setLoadedGooglePlayApps] = useState<any[]>([]);
 
   const importedStores = useMemo(() => {
     if (!appInfo?.apps?.length) return [];
-    return ['APPSTORE', 'GOOGLEPLAY'].filter((store) =>
+    return [Store.APPSTORE, Store.GOOGLEPLAY].filter((store) =>
       appInfo.apps.some((app) => app.store === store)
     );
   }, [appInfo?.apps]);
@@ -79,6 +88,44 @@ export default function ImportApps() {
     }
   }, [selectedStore, appInfo?.apps]);
 
+  const handleLoadGooglePlayApps = async (packageNames: string[]) => {
+    setIsImporting(true);
+    try {
+      if (!teamInfo?.currentTeam?.id) {
+        console.error('No team found');
+        return;
+      }
+
+      const response = await fetch(
+        `/api/teams/${teamInfo.currentTeam.id}/google-play/import`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            packageNames,
+            appIds: [],
+            fetchDetails: true,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to load apps');
+      }
+
+      const data = await response.json();
+      setLoadedGooglePlayApps(data.apps || []);
+      await appInfo.refresh();
+      toast.success(t('apps-loaded-successfully'));
+    } catch (error) {
+      toast.error(t('error-loading-apps'));
+      console.error('Error loading apps:', error);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const handleImport = async () => {
     setIsImporting(true);
     try {
@@ -86,16 +133,17 @@ export default function ImportApps() {
         console.error('No team found');
         return;
       }
-      if (selectedStore === 'APPSTORE') {
+      if (selectedStore === Store.APPSTORE) {
         await importAppsFromAppStoreConnect(
           teamInfo.currentTeam.id,
           selectedApps
         );
       } else {
-        await importAppsFromGooglePlay(teamInfo.currentTeam.id, selectedApps);
+        // For Google Play, apps are already imported via handleLoadGooglePlayApps
+        // This just confirms the selection
+        toast.success(t('apps-imported-successfully'));
       }
       await appInfo.refresh();
-      toast.success(t('apps-imported-successfully'));
       analytics.capture('Apps Imported', {
         teamId: teamInfo?.currentTeam?.id,
         appIds: selectedApps,
@@ -103,7 +151,7 @@ export default function ImportApps() {
 
       if (importedStores.length === 1 && selectedStore) {
         const allStores = new Set([...importedStores, selectedStore]);
-        if (allStores.has('APPSTORE') && allStores.has('GOOGLEPLAY')) {
+        if (allStores.has(Store.APPSTORE) && allStores.has(Store.GOOGLEPLAY)) {
           router.push('/dashboard');
         }
       }
@@ -114,6 +162,7 @@ export default function ImportApps() {
       setIsImporting(false);
       setSelectedApps([]);
       setSelectedStore(null);
+      setLoadedGooglePlayApps([]);
     }
   };
 
@@ -311,31 +360,38 @@ export default function ImportApps() {
                 teamId={teamInfo?.currentTeam?.id}
               />
             )
+          ) : isGooglePlayKeyUploaded ? (
+            loadedGooglePlayApps.length > 0 ? (
+              <GooglePlayAppsGrid
+                apps={loadedGooglePlayApps}
+                selectedApps={selectedApps}
+                onAppSelection={(appId) =>
+                  setSelectedApps((prev) =>
+                    prev.includes(appId)
+                      ? prev.filter((id) => id !== appId)
+                      : [...prev, appId]
+                  )
+                }
+                onImport={handleImport}
+                isLoading={false}
+                isImporting={isImporting}
+              />
+            ) : (
+              <PackageNameInput
+                onPackageNamesSubmitted={handleLoadGooglePlayApps}
+                isLoading={isImporting}
+              />
+            )
           ) : (
-            <>
-              {!googlePlayConnected ? (
-                <GooglePlayConnect
-                  teamId={teamInfo?.currentTeam?.id}
-                  onConnected={() => setGooglePlayConnected(true)}
-                  serviceAccountEmail="sorry, we are working on this"
-                />
-              ) : (
-                <GooglePlayAppsGrid
-                  apps={googlePlayApps || []}
-                  selectedApps={selectedApps}
-                  onAppSelection={(appId) =>
-                    setSelectedApps((prev) =>
-                      prev.includes(appId)
-                        ? prev.filter((id) => id !== appId)
-                        : [...prev, appId]
-                    )
-                  }
-                  onImport={handleImport}
-                  isLoading={loadingGooglePlayApps}
-                  isImporting={isImporting}
-                />
-              )}
-            </>
+            <GooglePlayKeyUpload
+              onKeyUploaded={async () => {
+                await refreshGooglePlayKey();
+                analytics.capture('Google Play Key Uploaded', {
+                  teamId: teamInfo?.currentTeam?.id,
+                });
+              }}
+              teamId={teamInfo?.currentTeam?.id}
+            />
           )}
         </motion.div>
       )}

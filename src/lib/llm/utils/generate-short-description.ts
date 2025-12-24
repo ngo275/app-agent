@@ -1,3 +1,4 @@
+import { LLM_MODEL } from '@/lib/config';
 import openai from '@/lib/llm/openai';
 import { shortDescriptionSystemPrompt } from '../prompts/short-description';
 import { shortDescriptionUserPrompt } from '../prompts/short-description';
@@ -14,7 +15,7 @@ export async function generateShortDescription(
     })
     .trim();
   const response = await openai.chat.completions.create({
-    model: 'gpt-4.1-mini',
+    model: LLM_MODEL,
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },

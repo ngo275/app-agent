@@ -1,3 +1,4 @@
+import { LLM_MODEL } from '@/lib/config';
 import { AppStoreApp } from '@/types/app-store';
 import { appFilteringSystemPrompt } from '@/lib/llm/prompts/keyword';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
@@ -25,7 +26,7 @@ export async function filterApps(
   ] as ChatCompletionMessageParam[];
 
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4.1',
+    model: LLM_MODEL,
     messages,
     response_format: zodResponseFormat(IndicesResponseSchema, 'indices'),
   });

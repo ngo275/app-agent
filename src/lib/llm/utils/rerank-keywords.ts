@@ -1,3 +1,4 @@
+import { LLM_MODEL } from '@/lib/config';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
 import { z } from 'zod';
 import { keywordRerankingPrompt } from '@/lib/llm/prompts/keyword';
@@ -37,7 +38,7 @@ Here are keywords of competitor apps: ${formattedKeywords}`,
     },
   ] as ChatCompletionMessageParam[];
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4.1-mini',
+    model: LLM_MODEL,
     messages,
     response_format: zodResponseFormat(KeywordResponseSchema, 'keywords'),
   });

@@ -44,6 +44,7 @@
     "cookies-next": "^5.0.2",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.11.11",
+    "google-play-scraper": "^10.1.1",
     "handlebars": "^4.7.8",
     "jose": "^5.9.4",
     "lottie-react": "^2.4.0",

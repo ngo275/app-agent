@@ -1,3 +1,4 @@
+import { LLM_MODEL } from '@/lib/config';
 import { getLocaleName, LocaleCode } from '@/lib/utils/locale';
 import { systemPrompt, userPrompt } from '../prompts/localization';
 import openai from '@/lib/llm/openai';
@@ -11,7 +12,7 @@ export async function generateLocalizations(
   reference?: string
 ): Promise<string> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4.1',
+    model: LLM_MODEL,
     messages: [
       {
         role: 'system',

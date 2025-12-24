@@ -1,3 +1,4 @@
+import { LLM_MODEL } from '@/lib/config';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { LocaleCode, getLocaleName } from '@/lib/utils/locale';
 import openai, { zodResponseFormat } from '@/lib/llm/openai';
@@ -31,7 +32,7 @@ Locale: ${getLocaleName(locale)}`,
   ] as ChatCompletionMessageParam[];
 
   const response = await openai.beta.chat.completions.parse({
-    model: 'gpt-4.1',
+    model: LLM_MODEL,
     messages,
     response_format: zodResponseFormat(KeywordResponseSchema, 'keywords'),
   });

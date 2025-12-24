@@ -334,8 +334,12 @@ export async function optimizeContents(
     subtitle?: string;
     description?: string;
     keywords?: string;
+    shortDescription?: string;
+    fullDescription?: string;
   },
-  userFeedback?: string
+  userFeedback?: string,
+  shortDescription?: string,
+  fullDescription?: string
 ) {
   const response = await fetch(
     `/api/teams/${teamId}/apps/${appId}/localizations/${locale}/optimization`,
@@ -352,6 +356,8 @@ export async function optimizeContents(
         descriptionOutline,
         previousResult,
         userFeedback,
+        shortDescription,
+        fullDescription,
       }),
     }
   );

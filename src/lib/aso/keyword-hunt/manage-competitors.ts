@@ -77,7 +77,7 @@ export async function removeCompetitor(
  */
 export async function getTrackedCompetitors(
   appId: string,
-  locale: LocaleCode
+  locale: LocaleCode | string
 ): Promise<Competitor[]> {
   const competitors = await prisma.competitor.findMany({
     where: {

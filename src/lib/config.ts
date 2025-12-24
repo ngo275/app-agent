@@ -5,7 +5,10 @@ export const JITSU_HOST = process.env.JITSU_HOST || '';
 export const JITSU_WRITE_KEY = process.env.JITSU_WRITE_KEY || '';
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
-export const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+export const LLM_API_KEY =
+  process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || ''; // Backward compatible with OPENAI_API_KEY
+export const LLM_BASE_URL = process.env.LLM_BASE_URL || ''; // Optional: custom base URL (e.g., https://openrouter.ai/api/v1)
+export const LLM_MODEL = process.env.LLM_MODEL || 'gpt-4o'; // Model to use for all LLM operations
 export const NEXT_PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || '';
 export const NEXT_PUBLIC_POSTHOG_KEY =
   process.env.NEXT_PUBLIC_POSTHOG_KEY || '';

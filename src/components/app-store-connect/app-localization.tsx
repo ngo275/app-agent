@@ -1,6 +1,6 @@
 'use client';
 
-import { AppLocalization, LocalizationEditMode } from '@/types/aso';
+import { AppLocalization, LocalizationEditMode, Store } from '@/types/aso';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MdExpandMore, MdSettings, MdAdd, MdAutoFixHigh } from 'react-icons/md';
@@ -21,6 +21,8 @@ interface AppLocalizationProps {
   mode: LocalizationEditMode;
   defaultExpanded?: boolean;
   onASOClick?: () => void;
+  // Store type to determine which fields to show
+  store?: Store;
 }
 
 export default function AppLocalizationView({
@@ -30,10 +32,14 @@ export default function AppLocalizationView({
   mode,
   defaultExpanded = true,
   onASOClick,
+  store = Store.APPSTORE,
 }: AppLocalizationProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const t = useTranslations('dashboard.app-store-connect.localization');
+
+  // Determine if we're in Google Play mode
+  const isGooglePlay = store === Store.GOOGLEPLAY;
 
   useEffect(() => {
     // FIXME: this doesn't work
@@ -67,51 +73,88 @@ export default function AppLocalizationView({
 
   const renderASOMode = () => (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <LocalizationField
-          label={t('title')}
-          value={localization.title}
-          onChange={(value) => handleChange('title', value)}
-          characterLimit={FIELD_LIMITS.title}
-          hasChanged={hasFieldChanged('title')}
-          originalValue={originalData?.title}
-        />
-        <LocalizationField
-          label={t('subtitle')}
-          value={localization.subtitle}
-          onChange={(value) => handleChange('subtitle', value)}
-          characterLimit={FIELD_LIMITS.subtitle}
-          hasChanged={hasFieldChanged('subtitle')}
-          originalValue={originalData?.subtitle}
-        />
-      </div>
+      {isGooglePlay ? (
+        // Google Play: Show only supported fields
+        <>
+          <LocalizationField
+            label={t('title')}
+            value={localization.title}
+            onChange={(value) => handleChange('title', value)}
+            characterLimit={50}
+            hasChanged={hasFieldChanged('title')}
+            originalValue={originalData?.title}
+          />
+          <LocalizationField
+            label="Short Description"
+            value={localization.shortDescription}
+            onChange={(value) => handleChange('shortDescription', value)}
+            multiline
+            characterLimit={80}
+            hasChanged={hasFieldChanged('shortDescription')}
+            originalValue={originalData?.shortDescription}
+          />
+          <LocalizationField
+            label="Full Description"
+            value={localization.fullDescription || localization.description}
+            onChange={(value) => handleChange('fullDescription', value)}
+            multiline
+            characterLimit={4000}
+            hasChanged={hasFieldChanged('fullDescription')}
+            originalValue={
+              originalData?.fullDescription || originalData?.description
+            }
+          />
+        </>
+      ) : (
+        // App Store Connect: Show all fields
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <LocalizationField
+              label={t('title')}
+              value={localization.title}
+              onChange={(value) => handleChange('title', value)}
+              characterLimit={FIELD_LIMITS.title}
+              hasChanged={hasFieldChanged('title')}
+              originalValue={originalData?.title}
+            />
+            <LocalizationField
+              label={t('subtitle')}
+              value={localization.subtitle}
+              onChange={(value) => handleChange('subtitle', value)}
+              characterLimit={FIELD_LIMITS.subtitle}
+              hasChanged={hasFieldChanged('subtitle')}
+              originalValue={originalData?.subtitle}
+            />
+          </div>
 
-      <LocalizationField
-        label={t('keywords')}
-        value={localization.keywords}
-        onChange={(value) => handleChange('keywords', value)}
-        characterLimit={FIELD_LIMITS.keywords}
-        hasChanged={hasFieldChanged('keywords')}
-        originalValue={originalData?.keywords}
-      />
+          <LocalizationField
+            label={t('keywords')}
+            value={localization.keywords}
+            onChange={(value) => handleChange('keywords', value)}
+            characterLimit={FIELD_LIMITS.keywords}
+            hasChanged={hasFieldChanged('keywords')}
+            originalValue={originalData?.keywords}
+          />
 
-      <LocalizationField
-        label={t('description')}
-        value={localization.description}
-        onChange={(value) => handleChange('description', value)}
-        multiline
-        characterLimit={FIELD_LIMITS.description}
-        hasChanged={hasFieldChanged('description')}
-      />
+          <LocalizationField
+            label={t('description')}
+            value={localization.description}
+            onChange={(value) => handleChange('description', value)}
+            multiline
+            characterLimit={FIELD_LIMITS.description}
+            hasChanged={hasFieldChanged('description')}
+          />
 
-      <LocalizationField
-        label={t('promotional-text')}
-        value={localization.promotionalText}
-        onChange={(value) => handleChange('promotionalText', value)}
-        multiline
-        characterLimit={FIELD_LIMITS.promotionalText}
-        hasChanged={hasFieldChanged('promotionalText')}
-      />
+          <LocalizationField
+            label={t('promotional-text')}
+            value={localization.promotionalText}
+            onChange={(value) => handleChange('promotionalText', value)}
+            multiline
+            characterLimit={FIELD_LIMITS.promotionalText}
+            hasChanged={hasFieldChanged('promotionalText')}
+          />
+        </>
+      )}
     </div>
   );
 
@@ -125,41 +168,55 @@ export default function AppLocalizationView({
       <h4 className="text-sm font-medium text-gray-500">
         {t('advanced-settings')}
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <LocalizationField
-          label={t('privacy-policy-url')}
-          value={localization.privacyPolicyUrl}
-          onChange={(value) => handleChange('privacyPolicyUrl', value)}
-          hasChanged={hasFieldChanged('privacyPolicyUrl')}
-        />
-        <LocalizationField
-          label={t('privacy-choices-url')}
-          value={localization.privacyChoicesUrl}
-          onChange={(value) => handleChange('privacyChoicesUrl', value)}
-          hasChanged={hasFieldChanged('privacyChoicesUrl')}
-        />
-      </div>
-      <LocalizationField
-        label={t('privacy-policy-text')}
-        value={localization.privacyPolicyText}
-        onChange={(value) => handleChange('privacyPolicyText', value)}
-        multiline
-        hasChanged={hasFieldChanged('privacyPolicyText')}
-      />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <LocalizationField
-          label={t('marketing-url')}
-          value={localization.marketingUrl}
-          onChange={(value) => handleChange('marketingUrl', value)}
-          hasChanged={hasFieldChanged('marketingUrl')}
-        />
-        <LocalizationField
-          label={t('support-url')}
-          value={localization.supportUrl}
-          onChange={(value) => handleChange('supportUrl', value)}
-          hasChanged={hasFieldChanged('supportUrl')}
-        />
-      </div>
+
+      {isGooglePlay ? (
+        // Google Play: Only show informational message
+        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-200">
+          <p className="font-medium mb-1">
+            {t('google-play-advanced-note-title')}
+          </p>
+          <p>{t('google-play-advanced-note-description')}</p>
+        </div>
+      ) : (
+        // App Store Connect: Show all advanced fields
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <LocalizationField
+              label={t('privacy-policy-url')}
+              value={localization.privacyPolicyUrl}
+              onChange={(value) => handleChange('privacyPolicyUrl', value)}
+              hasChanged={hasFieldChanged('privacyPolicyUrl')}
+            />
+            <LocalizationField
+              label={t('privacy-choices-url')}
+              value={localization.privacyChoicesUrl}
+              onChange={(value) => handleChange('privacyChoicesUrl', value)}
+              hasChanged={hasFieldChanged('privacyChoicesUrl')}
+            />
+          </div>
+          <LocalizationField
+            label={t('privacy-policy-text')}
+            value={localization.privacyPolicyText}
+            onChange={(value) => handleChange('privacyPolicyText', value)}
+            multiline
+            hasChanged={hasFieldChanged('privacyPolicyText')}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <LocalizationField
+              label={t('marketing-url')}
+              value={localization.marketingUrl}
+              onChange={(value) => handleChange('marketingUrl', value)}
+              hasChanged={hasFieldChanged('marketingUrl')}
+            />
+            <LocalizationField
+              label={t('support-url')}
+              value={localization.supportUrl}
+              onChange={(value) => handleChange('supportUrl', value)}
+              hasChanged={hasFieldChanged('supportUrl')}
+            />
+          </div>
+        </>
+      )}
     </motion.div>
   );
 
