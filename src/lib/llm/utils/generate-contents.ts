@@ -186,7 +186,7 @@ export async function generateDescription(
   console.log(JSON.stringify(messages, null, 2));
 
   const response = await openai.chat.completions.create({
-    model: shouldUseO1Series ? 'o1-mini' : 'gpt-4o',
+    model: shouldUseO1Series ? 'o3-mini' : 'gpt-4o',
     messages,
   });
 
