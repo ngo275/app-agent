@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
 import test from 'node:test';
 import ts from 'typescript';
 
@@ -221,5 +222,50 @@ test('authenticated login preserves same-origin callback', async () => {
   assert.equal(
     response.headers.get('location'),
     'http://localhost:3000/dashboard/account'
+  );
+});
+
+for (const path of ['/dashboard', '/dashboard/account']) {
+  test(`signed-out ${path} survives the login query and NextAuth callback round trip`, async () => {
+    const { NextRequest } = require('next/server');
+    const middleware = loadSource('src/lib/middleware/app.ts', {
+      '@/lib/config': { NEXTAUTH_SECRET: 'test-only' },
+      'next-auth/jwt': { getToken: async () => null },
+    }).default;
+    const origin = 'http://localhost:3000';
+    const response = await middleware(new NextRequest(`${origin}${path}`));
+    const loginUrl = new URL(response.headers.get('location'));
+    assert.equal(loginUrl.pathname, '/login');
+
+    // Login uses useSearchParams().get('next') as callbackUrl for both providers.
+    const callbackUrl = loginUrl.searchParams.get('next');
+    assert.equal(callbackUrl, path);
+    assert.doesNotMatch(loginUrl.search, /%252F/i);
+
+    // Exercise the installed NextAuth implementation, not a copy of its rules.
+    const authRoot = dirname(require.resolve('next-auth'));
+    const { createCallbackUrl } = require(
+      join(authRoot, 'core/lib/callback-url.js')
+    );
+    const { defaultCallbacks } = require(
+      join(authRoot, 'core/lib/default-callbacks.js')
+    );
+    const result = await createCallbackUrl({
+      options: { url: { origin }, callbacks: defaultCallbacks },
+      paramValue: callbackUrl,
+    });
+    assert.equal(result.callbackUrl, `${origin}${path}`);
+  });
+}
+
+test('signed-out direct login remains accessible without a callback', async () => {
+  const { NextRequest } = require('next/server');
+  const middleware = loadSource('src/lib/middleware/app.ts', {
+    '@/lib/config': { NEXTAUTH_SECRET: 'test-only' },
+    'next-auth/jwt': { getToken: async () => null },
+  }).default;
+  assert.equal(
+    await middleware(new NextRequest('http://localhost:3000/login')),
+    undefined
   );
 });

@@ -22,7 +22,8 @@ export default async function AppMiddleware(req: NextRequest) {
     const loginUrl = new URL(`/login`, req.url);
     // Append "next" parameter only if not navigating to the root
     if (path !== '/') {
-      loginUrl.searchParams.set('next', encodeURIComponent(path));
+      // URLSearchParams encodes the path; pre-encoding would encode it twice.
+      loginUrl.searchParams.set('next', path);
     }
     return NextResponse.redirect(loginUrl);
   }
