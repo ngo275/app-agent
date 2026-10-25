@@ -1,10 +1,10 @@
-import { STRIPE_SECRET_KEY } from '@/lib/config';
+import { STRIPE_SECRET_KEY, WHITE_LABEL_CONFIG } from '@/lib/config';
 import Stripe from 'stripe';
 
 const stripeNew = new Stripe(STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-11-20.acacia',
   appInfo: {
-    name: 'AppAgent',
+    name: WHITE_LABEL_CONFIG.appName,
     version: '0.1.0',
   },
   typescript: true,
@@ -28,7 +28,7 @@ export async function cancelSubscription(customer?: string) {
     return await stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
       cancellation_details: {
-        comment: 'Customer deleted their AppAgent instance.',
+        comment: `Customer deleted their ${WHITE_LABEL_CONFIG.appName} instance.`,
       },
     });
   } catch (error) {

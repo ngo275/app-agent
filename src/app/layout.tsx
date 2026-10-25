@@ -8,6 +8,7 @@ import { Providers } from '@/components/providers';
 import { getLocale } from 'next-intl/server';
 import { getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
+import { WHITE_LABEL_CONFIG } from '@/lib/config';
 const inter = Inter({ subsets: ['latin'] });
 
 // const geistSans = localFont({
@@ -22,14 +23,13 @@ const inter = Inter({ subsets: ['latin'] });
 // });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://app-agent.ai'),
-  title: 'AppAgent | From ASO to Release, All Streamlined',
-  description:
-    'AppAgent automates ASO while simplifying every step from planning to release. Effortlessly generate multilingual release notes, track growth, and handle updates—all in one place. OSS alternative to AppTweak, App Radar, and Sensor Tower.',
+  metadataBase: new URL(`https://${WHITE_LABEL_CONFIG.domain}`),
+  title: `${WHITE_LABEL_CONFIG.appName} | ${WHITE_LABEL_CONFIG.tagline}`,
+  description: WHITE_LABEL_CONFIG.description,
   keywords: [
     'ASO',
     'ASO Agent',
-    'AppAgent',
+    WHITE_LABEL_CONFIG.appName,
     'App Agent',
     'ASO AI',
     'App Store Optimization',
@@ -54,17 +54,16 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'AppAgent | From ASO to Release, All Streamlined',
-    description:
-      'AppAgent automates ASO while simplifying every step from planning to release. Effortlessly generate multilingual release notes, track growth, and handle updates—all in one place. OSS alternative to AppTweak, App Radar, and Sensor Tower.',
-    url: 'https://app-agent.ai',
-    siteName: 'AppAgent',
+    title: `${WHITE_LABEL_CONFIG.appName} | ${WHITE_LABEL_CONFIG.tagline}`,
+    description: WHITE_LABEL_CONFIG.description,
+    url: `https://${WHITE_LABEL_CONFIG.domain}`,
+    siteName: WHITE_LABEL_CONFIG.appName,
     images: [
       {
-        url: 'https://app-agent.ai/images/og.jpg',
+        url: `https://${WHITE_LABEL_CONFIG.domain}/images/og.jpg`,
         width: 1200,
         height: 630,
-        alt: 'AppAgent',
+        alt: WHITE_LABEL_CONFIG.appName,
       },
     ],
     locale: 'en_US',
@@ -72,11 +71,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AppAgent | From ASO to Release, All Streamlined',
-    description:
-      'AppAgent automates ASO while simplifying every step from planning to release. Effortlessly generate multilingual release notes, track growth, and handle updates—all in one place. OSS alternative to AppTweak, App Radar, and Sensor Tower.',
-    images: ['https://app-agent.ai/images/og.jpg'],
-    site: '@ngo275',
+    title: `${WHITE_LABEL_CONFIG.appName} | ${WHITE_LABEL_CONFIG.tagline}`,
+    description: WHITE_LABEL_CONFIG.description,
+    images: [`https://${WHITE_LABEL_CONFIG.domain}/images/og.jpg`],
+    site: WHITE_LABEL_CONFIG.twitterHandle,
   },
   robots: {
     index: true,

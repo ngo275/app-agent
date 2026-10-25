@@ -1,6 +1,7 @@
 import VerificationLinkEmail from '@/components/emails/verification-link';
 
 import { sendEmail } from '@/lib/resend';
+import { WHITE_LABEL_CONFIG } from '@/lib/config';
 
 export default async function sendVerificationRequestEmail(params: {
   locale: string;
@@ -12,7 +13,7 @@ export default async function sendVerificationRequestEmail(params: {
   try {
     await sendEmail({
       to: email as string,
-      subject: 'Login to AppAgent!',
+      subject: `Login to ${WHITE_LABEL_CONFIG.appName}!`,
       react: emailTemplate,
       test: process.env.NODE_ENV === 'development',
     });

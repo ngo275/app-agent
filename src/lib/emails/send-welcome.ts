@@ -1,6 +1,7 @@
 import WelcomeEmail from '@/components/emails/welcome';
 
 import { sendEmail } from '@/lib/resend';
+import { WHITE_LABEL_CONFIG } from '@/lib/config';
 
 import { CreateUserEmailProps } from '@/types/user';
 
@@ -14,7 +15,7 @@ export default async function sendWelcomeEmail(params: CreateUserEmailProps) {
   try {
     await sendEmail({
       to: email as string,
-      subject: 'Welcome to AppAgent!',
+      subject: `Welcome to ${WHITE_LABEL_CONFIG.appName}!`,
       react: emailTemplate,
       test: process.env.NODE_ENV === 'development',
     });

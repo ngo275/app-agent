@@ -21,6 +21,7 @@ import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   VERCEL_URL,
+  WHITE_LABEL_CONFIG,
 } from '@/lib/config';
 import { NotPermittedError, UnauthorizedError } from '@/types/errors';
 import { getUserLocale } from '@/lib/utils/server-locale';
@@ -93,7 +94,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         // When working on localhost, the cookie domain must be omitted entirely (https://stackoverflow.com/a/1188145)
-        domain: VERCEL_DEPLOYMENT ? '.app-agent.ai' : undefined,
+        domain: VERCEL_DEPLOYMENT ? `.${WHITE_LABEL_CONFIG.domain}` : undefined,
         secure: VERCEL_DEPLOYMENT,
       },
     },

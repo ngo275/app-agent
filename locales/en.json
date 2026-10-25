@@ -43,7 +43,7 @@
     "just-sign-up-and-start-optimizing": "One week free trial (no credit card required)",
     "ready-to-try-appagent": "Ready to Try AppAgent?",
     "ready-to-try-appagent-description": "Try an AI-first ASO platform that's actually a complete app management solution.",
-    "who-should-use": "Who Should Use AppAgent",
+    "who-should-use": "Who Should Use AppAgent?",
     "global-product": "A Global Product by Solopreneur",
     "global-product-description": "Ideal for app publishers managing multiple international markets who need efficient localization and optimization across various regions.",
     "hands-off-aso": "Prioritize Efficiency Over Accuracy",
@@ -96,7 +96,7 @@
     }
   },
   "login": {
-    "title": "AppAgent",
+    "title": "{{appName}}",
     "description": "From ASO to Release, All Streamlined",
     "sign-in-to-your-account": "Sign in to your account",
     "sign-in-with-email": "Sign in with email",
@@ -105,7 +105,7 @@
     "sign-in-with-google": "Sign in with Google"
   },
   "plan": {
-    "title": "Upgrade AppAgent",
+    "title": "Upgrade {{appName}}",
     "description": "Let us handle app management from ASO to release for just $29/month",
     "payment-canceled": "Payment canceled. Please try again when you're ready.",
     "failed-to-create-checkout-session": "Failed to create checkout session. Please try again.",
@@ -456,7 +456,7 @@
     }
   },
   "layout": {
-    "title": "AppAgent",
+    "title": "{{appName}}",
     "description": "From ASO to Release, All Streamlined",
     "manage-apps": "Manage apps",
     "user-avatar": "User avatar",
