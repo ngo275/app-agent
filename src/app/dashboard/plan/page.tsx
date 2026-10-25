@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
 import { FaUserCircle } from 'react-icons/fa';
 import Link from 'next/link';
 import Plans from '@/components/plan/plans';
@@ -10,6 +12,7 @@ export const metadata = {
 };
 
 export default function PlanPage() {
+  if (NEXT_PUBLIC_FREE_PLAN_ENABLED === 'true') redirect('/dashboard');
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-white via-gray-50 to-gray-100">
       <div className="container max-w-6xl px-4 mx-auto">

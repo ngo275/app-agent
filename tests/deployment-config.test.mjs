@@ -13,11 +13,8 @@ test('all six configured functions fit the current 1024 MB hosting limit', () =>
   }
 });
 
-test('security review branch still disables automatic Git deployment', () => {
-  assert.equal(
-    config.git.deploymentEnabled['chore/appagent-runtime-security-2026-10'],
-    false
-  );
+test('automatic Git deployment is disabled for every branch', () => {
+  assert.equal(config.git.deploymentEnabled, false);
 });
 
 test('description generation preserves main model fix and fallback', () => {

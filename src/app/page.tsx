@@ -1,12 +1,5 @@
-import LandingPageView from '@/components/landing-page/view';
-import LandingPageLayout from '@/components/layouts/landing-page';
+import { redirect } from 'next/navigation';
 
-export default async function LandingPage() {
-  // const metadata = await fetchAppMetadata();
-
-  return (
-    <LandingPageLayout>
-      <LandingPageView />
-    </LandingPageLayout>
-  );
+export default function HomePage() {
+  redirect('/dashboard');
 }

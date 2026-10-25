@@ -5,7 +5,7 @@ import { Resend } from 'resend';
 
 // import { log, nanoid } from "@/lib/utils";
 import { randomString } from '@/lib/utils/string';
-import { RESEND_API_KEY } from '@/lib/config';
+import { RESEND_API_KEY, EMAIL_FROM } from '@/lib/config';
 
 export const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
@@ -31,26 +31,19 @@ export const sendEmail = async ({
   cc?: string | string[];
   scheduledAt?: string;
 }) => {
-  if (!resend) {
+  if (!resend || !EMAIL_FROM) {
     // Throw an error if resend is not initialized
-    throw new Error('Resend not initialized');
+    throw new Error(
+      'Configure RESEND_API_KEY and a verified EMAIL_FROM sender'
+    );
   }
   // const plainText = await render(react, { plainText: true });
 
   try {
     const { data, error } = await resend.emails.send({
-      from: marketing
-        ? 'Shu from AppAgent <shu@app-agent.ai>'
-        : system
-          ? 'AppAgent <info@app-agent.ai>'
-          : verify
-            ? 'AppAgent <info@app-agent.ai>'
-            : !!scheduledAt
-              ? 'Shu from AppAgent <shu@app-agent.ai>'
-              : 'Shu from AppAgent <shu@app-agent.ai>',
+      from: EMAIL_FROM,
       to: test ? 'delivered@resend.dev' : to,
       cc: cc,
-      replyTo: marketing ? 'info@app-agent.ai' : undefined,
       subject,
       react,
       scheduledAt,

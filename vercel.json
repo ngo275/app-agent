@@ -20,8 +20,6 @@
     }
   },
   "git": {
-    "deploymentEnabled": {
-      "chore/appagent-runtime-security-2026-10": false
-    }
+    "deploymentEnabled": false
   }
 }

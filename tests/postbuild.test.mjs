@@ -8,7 +8,7 @@ const production = {
   VERCEL_GIT_COMMIT_REF: 'main',
 };
 const cases = [
-  ['production main', production, true],
+  ['production main', production, false],
   ['preview main', { ...production, VERCEL_ENV: 'preview' }, false],
   [
     'preview branch',
@@ -46,14 +46,9 @@ for (const [name, env, expected] of cases) {
     assert.deepEqual(result, { skipped: !expected, status: 0 });
   });
 }
-test('postbuild preserves a migration failure instead of hiding it', () => {
-  assert.deepEqual(
-    runPostbuild(production, () => ({ status: 2 })),
-    { skipped: false, status: 2 }
-  );
-  assert.throws(
-    () =>
-      runPostbuild(production, () => ({ error: new Error('test failure') })),
-    /test failure/
-  );
+test('even a production build never calls the migration callback', () => {
+  const result = runPostbuild(production, () => {
+    throw new Error('Automatic migration must never run');
+  });
+  assert.deepEqual(result, { skipped: true, status: 0 });
 });

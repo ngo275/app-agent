@@ -1,3 +1,4 @@
+import { NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
@@ -31,6 +32,12 @@ const relevantEvents = new Set([
 ]);
 
 export async function POST(req: Request) {
+  if (NEXT_PUBLIC_FREE_PLAN_ENABLED === 'true') {
+    return new NextResponse('Billing is disabled for this local installation', {
+      status: 404,
+    });
+  }
+
   const body = await req.text();
   const headersList = await headers();
   const sig = headersList.get('stripe-signature');

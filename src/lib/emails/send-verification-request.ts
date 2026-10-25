@@ -20,5 +20,6 @@ export default async function sendVerificationRequestEmail(params: {
     console.error(
       `Error sending verification request email to ${email}: ${JSON.stringify(e, null, 2)}`
     );
+    throw e;
   }
 }
