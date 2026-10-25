@@ -5,7 +5,7 @@ import { NEXT_PUBLIC_BASE_URL, STRIPE_PRICE_MAPPING } from '@/lib/config';
 
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const { userId, teamId, session, team } = await validateTeamAccess(request);

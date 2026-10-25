@@ -14,7 +14,7 @@ export const maxDuration = 180;
 // Import a new list of apps.
 export async function POST(
   req: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const { teamId, appStoreConnectJWT } = await validateTeamAccess(req);

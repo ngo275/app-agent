@@ -15,11 +15,13 @@ import { LocaleCode } from '@/lib/utils/locale';
 // Returns all tracked competitors for an app in a locale
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: string } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId, locale } = params;
+    const { appId, locale } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({
@@ -48,11 +50,13 @@ export async function GET(
 // Adds a competitor to an app in a locale
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: string } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId, locale } = params;
+    const { appId, locale } = await params;
     const data = await request.json();
     const { competitor, store = 'APPSTORE' } = data;
 

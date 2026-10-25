@@ -10,7 +10,7 @@ export const maxDuration = 300;
 // Localize What's New contents into the all locales at a time.
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { whatsNew, localizations, version, platform, store } =
@@ -26,12 +26,14 @@ export async function POST(
       throw new InvalidParamsError('Missing params');
     }
 
+    const { appId } = await params;
+
     // Generate translations for each locale
     const translationPromises = localizations.map(
       async (localization: AppLocalization) => {
         const asoKeywords = (await prisma.asoKeyword.findMany({
           where: {
-            appId: params.appId,
+            appId,
             locale: localization.locale,
             platform: platform as Platform,
             store: store as Store,

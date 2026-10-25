@@ -11,7 +11,7 @@ import {
 // Retrieve the detail of a team.
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const { userId, teamId, session, team } = await validateTeamAccess(request);
@@ -24,7 +24,7 @@ export async function GET(
 // Delete a specified team.
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const { userId, teamId, session, team } = await validateTeamAccess(request);

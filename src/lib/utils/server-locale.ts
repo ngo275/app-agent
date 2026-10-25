@@ -6,8 +6,8 @@ import { SUPPORTED_LOCALES, USER_LOCALE_COOKIE_NAME } from './locale';
 
 export const getUserLocale = async (): Promise<string> => {
   // 1. Read cookies & Accept-Language
-  const userCookie = cookies().get(USER_LOCALE_COOKIE_NAME)?.value;
-  const acceptLanguage = headers().get('accept-language') || '';
+  const userCookie = (await cookies()).get(USER_LOCALE_COOKIE_NAME)?.value;
+  const acceptLanguage = (await headers()).get('accept-language') || '';
 
   // 2. Decide which locale to use
   let userLocale: string;

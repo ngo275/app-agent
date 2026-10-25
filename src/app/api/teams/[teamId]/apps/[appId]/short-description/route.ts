@@ -5,11 +5,11 @@ import { NextResponse } from 'next/server';
 
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const appId = params.appId;
+    const { appId } = await params;
     const shortDescription = await generateShortDescription(appId, teamId);
     return NextResponse.json({ shortDescription });
   } catch (error) {

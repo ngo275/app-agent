@@ -15,14 +15,16 @@ export const maxDuration = 300;
 // Generate ASO friendly title, subtitle, description, and keywords
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: LocaleCode } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   // It will take the final keywords, the current title, subtitle, and description as an input.
   // It will leverage LLM to generate the title, subtitle, and description.
   // It will validate the length and format of the LLM output. If it fails, it will retry with the feedback message.
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId, locale } = params;
+    const { appId, locale } = await params;
     const data = await request.json();
 
     // Verify app belongs to team
@@ -60,7 +62,7 @@ export async function POST(
 
     // Add new locale to App Store Connect
     const result = await optimizeContents(
-      locale,
+      locale as LocaleCode,
       data.title,
       data.asoKeywords,
       data.targets,

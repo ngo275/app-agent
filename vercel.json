@@ -18,5 +18,10 @@
     "src/app/api/teams/[teamId]/apps/[appId]/localizations/[locale]/competitors/research/route.ts": {
       "memory": 3009
     }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "chore/appagent-runtime-security-2026-10": false
+    }
   }
 }

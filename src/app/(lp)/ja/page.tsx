@@ -42,11 +42,7 @@ export const metadata: Metadata = {
 
 // FIXME: This is a temporary page to test the landing page in Japanese.
 // It should be moved to [locale] to be more robust.
-export default async function LocalizedLandingPage({
-  params: { locale },
-}: {
-  params: { locale: string };
-}) {
+export default async function LocalizedLandingPage() {
   return (
     <LandingPageLayout>
       <LandingPageView />

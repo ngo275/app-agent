@@ -5,10 +5,10 @@ import { AppNotFoundError, handleAppError } from "@/types/errors";
 import prisma from "@/lib/prisma";
 
 // Get builds for a pre-release version
-export async function GET(request: Request, { params }: { params: { teamId: string; appId: string; versionId: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ teamId: string; appId: string; versionId: string }> }) {
   try {
     const { teamId, appStoreConnectJWT } = await validateTeamAccess(request);
-    const { appId, versionId } = params;
+    const { appId, versionId } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({
@@ -32,10 +32,10 @@ export async function GET(request: Request, { params }: { params: { teamId: stri
 }
 
 // Select a build for a pre-release version
-export async function POST(request: Request, { params }: { params: { teamId: string; appId: string; versionId: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ teamId: string; appId: string; versionId: string }> }) {
   try {
     const { teamId, appStoreConnectJWT } = await validateTeamAccess(request);
-    const { appId, versionId } = params;
+    const { appId, versionId } = await params;
     const { buildId } = await request.json();
 
     // Verify app belongs to team

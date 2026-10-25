@@ -8,7 +8,9 @@ export const maxDuration = 30;
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { teamId: string; appId: string; locale: string } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   try {
     const { term, store = 'APPSTORE', platform = 'IOS' } = await request.json();
@@ -20,10 +22,12 @@ export async function POST(
       );
     }
 
+    const { locale } = await params;
+
     // This is only for App Store
     const results = await searchApps({
-      country: getCountryCode(params.locale as LocaleCode),
-      language: getLocaleString(params.locale as LocaleCode),
+      country: getCountryCode(locale as LocaleCode),
+      language: getLocaleString(locale as LocaleCode),
       term,
       num: 10,
     });

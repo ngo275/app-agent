@@ -31,7 +31,9 @@ const initialState: AppContextType = {
 
 const AppContext = createContext<AppContextType>(initialState);
 
-export const AppProvider = ({ children }: AppContextProps): JSX.Element => {
+export const AppProvider = ({
+  children,
+}: AppContextProps): React.JSX.Element => {
   const [currentApp, setCurrentAppState] = useState<App | null>(null);
   const { apps, loading, refreshApps } = useGetApps();
 

@@ -13,11 +13,11 @@ export const maxDuration = 60;
 // Fetch the latest data from App Store Connect and save it into the database.
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { appStoreConnectJWT, teamId } = await validateTeamAccess(request);
-    const { appId } = params;
+    const { appId } = await params;
 
     if (!appId) {
       throw new InvalidParamsError('App ID is required');

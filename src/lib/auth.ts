@@ -5,7 +5,7 @@ import NextAuth, {
   Session,
   type NextAuthOptions,
 } from 'next-auth';
-import EmailProvider from 'next-auth/providers/email';
+import EmailProvider from '@/lib/auth/email-provider';
 import GoogleProvider from 'next-auth/providers/google';
 import LinkedInProvider from 'next-auth/providers/linkedin';
 
@@ -63,9 +63,6 @@ export const authOptions: NextAuthOptions = {
           console.log('[Login URL]', url);
           return;
         } else {
-          console.log(
-            `Sending verification request email to ${identifier} with url ${url}`
-          );
           await sendVerificationRequestEmail({
             locale: await getUserLocale(),
             url,

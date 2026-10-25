@@ -15,11 +15,11 @@ import { AppLocalization } from '@/types/aso';
 // To retrieve the latest localization from App Store Connect, `pull` endpoint must be used first.
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId } = params;
+    const { appId } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({
@@ -83,11 +83,11 @@ export async function GET(
 // Updating App Store Connect will be done in the `push` endpoint.
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId } = params;
+    const { appId } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({

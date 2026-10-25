@@ -109,13 +109,21 @@ export async function generateContents(
     });
   }
 
-  const response = await openai.beta.chat.completions.parse({
+  // Structured Outputs requires every property. The previous SDK already sent
+  // these fields as required; keep that wire schema and the optional return type.
+  const response = await openai.chat.completions.parse({
     model: 'gpt-4.1',
     messages,
     response_format:
       store === 'APPSTORE'
-        ? zodResponseFormat(ContentsResponseSchemaForAppStore, 'contents')
-        : zodResponseFormat(ContentsResponseSchemaForGooglePlay, 'contents'),
+        ? zodResponseFormat(
+            ContentsResponseSchemaForAppStore.required(),
+            'contents'
+          )
+        : zodResponseFormat(
+            ContentsResponseSchemaForGooglePlay.required(),
+            'contents'
+          ),
   });
 
   if (response.choices[0].message.refusal) {

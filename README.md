@@ -68,6 +68,18 @@ https://github.com/user-attachments/assets/9148a814-ae24-4005-adb6-d113933b67d3
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js 24.22.1 or a newer 24.x release. The minimum includes the
+  [October 2026 Node.js security fixes](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
+- Yarn 1.22.22 (the version declared in `packageManager`).
+- PostgreSQL and the service credentials for your own installation.
+
+With a Node version manager, run `nvm install` and `nvm use` in this directory.
+Vercel manages runtime patches within a major line, so verify the actual
+`process.version` in the target deployment rather than assuming a source-code
+change has upgraded an existing deployment.
+
 ### 1. Clone the repository
 
 ```bash
@@ -120,10 +132,7 @@ Here's the list of environment variables you need to set:
 ### 3. Install dependencies
 
 ```bash
-yarn
-
-# Or with NPM
-npm install
+corepack yarn install --frozen-lockfile
 ```
 
 ### 4. Set up DB
@@ -133,8 +142,8 @@ yarn prisma generate
 yarn prisma migrate deploy
 
 # Or with NPM
-npm run prisma generate
-npm run prisma migrate deploy
+npx prisma generate
+npx prisma migrate deploy
 ```
 
 ### 5. Run the development server
@@ -150,6 +159,26 @@ Visit [http://localhost:3000](http://localhost:3000) to see the app.
 
 ---
 
+## Verification
+
+```bash
+yarn lint
+yarn typecheck
+yarn build:check
+```
+
+`build:check` generates the Prisma client and builds Next.js without invoking the
+`postbuild` database-migration hook. Use test-only environment values for local
+verification. The `yarn build` postbuild hook runs migrations only when Vercel explicitly
+identifies a production build of `main`. Previews, local builds, and builds with
+missing target metadata skip migrations. For a self-hosted release, run
+`yarn db:migrate:deploy` explicitly with the intended database and an approved
+migration/deployment plan.
+
+The legacy Jest commands do not currently have an installed test runner or an
+active Jest configuration. They are not a substitute for the checks above or
+end-to-end verification of your own integrations.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a PR.
@@ -161,3 +190,13 @@ If you'd like to contribute, please fork the repository and submit a PR.
 ## License
 
 AppAgent is open-source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version. You can find it [here](https://github.com/ngo275/app-agent/blob/main/LICENSE).
+
+### Security review branch
+
+Automatic Vercel Git deployments are disabled only for
+`chore/appagent-runtime-security-2026-10` in `vercel.json`. This requests that review pushes do not create automatic previews.
+The separate `postbuild` guard also skips migrations for this branch even if a
+build is started. Other branches retain their existing Git deployment behavior.
+Before enabling a preview, verify its database and service credentials are
+isolated; use `build:check` for a build without automatic migrations. This rule
+does not disable manual deployments or deployments from a differently named branch.
