@@ -37,7 +37,9 @@ export const initialState = {
 
 const TeamContext = createContext<TeamContextType | null>(initialState);
 
-export const TeamProvider = ({ children }: TeamContextProps): JSX.Element => {
+export const TeamProvider = ({
+  children,
+}: TeamContextProps): React.JSX.Element => {
   const { teams, loading, error } = useTeams();
   const [currentTeam, setCurrentTeamState] = useState<Team | null>(null);
 

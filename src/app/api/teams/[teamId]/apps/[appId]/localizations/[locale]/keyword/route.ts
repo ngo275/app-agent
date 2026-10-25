@@ -14,11 +14,13 @@ export const maxDuration = 300;
 // Return all keywords for an app and locale
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: LocaleCode } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId, locale } = params;
+    const { appId, locale } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({
@@ -52,11 +54,13 @@ export async function GET(
 // Score and store a keyword in the database
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: string } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId, locale } = params;
+    const { appId, locale } = await params;
     const data = await request.json();
     const { term } = data;
     if (!term) {

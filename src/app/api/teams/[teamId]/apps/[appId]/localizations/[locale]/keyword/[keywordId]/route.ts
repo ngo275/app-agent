@@ -9,17 +9,17 @@ export async function DELETE(
   {
     params,
   }: {
-    params: {
+    params: Promise<{
       teamId: string;
       appId: string;
       locale: string;
       keywordId: string;
-    };
+    }>;
   }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId, keywordId } = params;
+    const { appId, keywordId } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({

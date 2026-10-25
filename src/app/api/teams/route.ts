@@ -10,7 +10,7 @@ import { handleAppError, UnauthorizedError } from '@/types/errors';
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) {
-    throw new UnauthorizedError('Unauthorized');
+    return handleAppError(new UnauthorizedError('Unauthorized'));
   }
 
   const user = session.user as User;
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) {
-    throw new UnauthorizedError('Unauthorized');
+    return handleAppError(new UnauthorizedError('Unauthorized'));
   }
 
   const user = session.user as User;

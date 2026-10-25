@@ -1,18 +1,15 @@
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-// import { PasskeyProvider } from "@teamhanko/passkeys-next-auth-provider";
 import NextAuth, {
   getServerSession,
   Session,
   type NextAuthOptions,
 } from 'next-auth';
-import EmailProvider from 'next-auth/providers/email';
+import EmailProvider from '@/lib/auth/email-provider';
 import GoogleProvider from 'next-auth/providers/google';
-import LinkedInProvider from 'next-auth/providers/linkedin';
 
 import { identifyUser, trackAnalytics } from '@/lib/analytics';
 import sendVerificationRequestEmail from '@/lib/emails/send-verification-request';
 import sendWelcomeEmail from '@/lib/emails/send-welcome';
-// import hanko from "@/lib/hanko";
 import { CreateUserEmailProps, Team, User } from '@/types/user';
 import prisma from '@/lib/prisma';
 import { AnalyticsEvent } from '@/types/analytics';
@@ -20,52 +17,31 @@ import { generateJWT } from '@/lib/app-store-connect/auth';
 import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
-  VERCEL_URL,
+  RESEND_API_KEY,
+  EMAIL_FROM,
 } from '@/lib/config';
 import { NotPermittedError, UnauthorizedError } from '@/types/errors';
 import { getUserLocale } from '@/lib/utils/server-locale';
-
-const VERCEL_DEPLOYMENT = !!VERCEL_URL;
 
 export const authOptions: NextAuthOptions = {
   pages: {
     error: '/login',
   },
   providers: [
-    GoogleProvider({
-      clientId: GOOGLE_CLIENT_ID as string,
-      clientSecret: GOOGLE_CLIENT_SECRET as string,
-      allowDangerousEmailAccountLinking: true,
-    }),
-    // LinkedInProvider({
-    //   clientId: process.env.LINKEDIN_CLIENT_ID as string,
-    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET as string,
-    //   authorization: {
-    //     params: { scope: "openid profile email" },
-    //   },
-    //   issuer: "https://www.linkedin.com/oauth",
-    //   jwks_endpoint: "https://www.linkedin.com/oauth/openid/jwks",
-    //   profile(profile, tokens) {
-    //     const defaultImage =
-    //       "https://cdn-icons-png.flaticon.com/512/174/174857.png";
-    //     return {
-    //       id: profile.sub,
-    //       name: profile.name,
-    //       email: profile.email,
-    //       image: profile.picture ?? defaultImage,
-    //     };
-    //   },
-    //   allowDangerousEmailAccountLinking: true,
-    // }),
+    ...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: GOOGLE_CLIENT_ID,
+            clientSecret: GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
     EmailProvider({
       async sendVerificationRequest({ identifier, url }) {
         if (process.env.NODE_ENV === 'development') {
           console.log('[Login URL]', url);
           return;
         } else {
-          console.log(
-            `Sending verification request email to ${identifier} with url ${url}`
-          );
           await sendVerificationRequestEmail({
             locale: await getUserLocale(),
             url,
@@ -74,30 +50,10 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    // PasskeyProvider({
-    //   tenant: hanko,
-    //   async authorize({ userId }) {
-    //     const user = await prisma.user.findUnique({ where: { id: userId } });
-    //     if (!user) return null;
-    //     return user;
-    //   },
-    // }),
   ],
   adapter: PrismaAdapter(prisma),
   session: { strategy: 'jwt' },
-  cookies: {
-    sessionToken: {
-      name: `${VERCEL_DEPLOYMENT ? '__Secure-' : ''}next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        // When working on localhost, the cookie domain must be omitted entirely (https://stackoverflow.com/a/1188145)
-        domain: VERCEL_DEPLOYMENT ? '.app-agent.ai' : undefined,
-        secure: VERCEL_DEPLOYMENT,
-      },
-    },
-  },
+  // NextAuth derives secure, host-only cookies from NEXTAUTH_URL.
   callbacks: {
     jwt: async ({ token, user }) => {
       if (!token.email) {
@@ -142,9 +98,15 @@ export const authOptions: NextAuthOptions = {
         userId: message.user.id,
       });
 
-      sendWelcomeEmail(params).catch((error) => {
-        console.error(error);
-      });
+      if (
+        process.env.NODE_ENV !== 'development' &&
+        RESEND_API_KEY &&
+        EMAIL_FROM
+      ) {
+        sendWelcomeEmail(params).catch((error) => {
+          console.error(error);
+        });
+      }
 
       // return { redirect: { destination: '/welcome' } };
     },

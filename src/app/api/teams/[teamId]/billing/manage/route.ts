@@ -1,3 +1,4 @@
+import { NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
 import { validateTeamAccess } from '@/lib/auth';
 import { NEXT_PUBLIC_BASE_URL } from '@/lib/config';
 import { stripeInstance } from '@/lib/payment/stripe';
@@ -6,8 +7,14 @@ import { NextResponse } from 'next/server';
 
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
+  if (NEXT_PUBLIC_FREE_PLAN_ENABLED === 'true') {
+    return new NextResponse('Billing is disabled for this local installation', {
+      status: 404,
+    });
+  }
+
   try {
     const { teamId, team } = await validateTeamAccess(request);
     if (!team.stripeId) {

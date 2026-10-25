@@ -14,11 +14,13 @@ export const maxDuration = 300;
 // Run keyword research and make suggestion
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: string } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
-    const { appId, locale } = params;
+    const { appId, locale } = await params;
     const data = await request.json();
 
     if (!data.shortDescription || !data.store || !data.platform) {

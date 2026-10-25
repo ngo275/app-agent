@@ -5,7 +5,7 @@ export type Step = {
   mode: LocalizationEditMode | null;
   title: string;
   description: string;
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   beta?: boolean;
 };
 

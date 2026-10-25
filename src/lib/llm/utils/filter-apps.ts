@@ -24,7 +24,7 @@ export async function filterApps(
     },
   ] as ChatCompletionMessageParam[];
 
-  const response = await openai.beta.chat.completions.parse({
+  const response = await openai.chat.completions.parse({
     model: 'gpt-4.1',
     messages,
     response_format: zodResponseFormat(IndicesResponseSchema, 'indices'),

@@ -15,11 +15,11 @@ export const maxDuration = 20;
 // Check if the current database is obsolted compared with the status of App Store Connect.
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { appStoreConnectJWT } = await validateTeamAccess(request);
-    const { appId } = params;
+    const { appId } = await params;
 
     if (!appId) {
       throw new InvalidParamsError('App ID is required');

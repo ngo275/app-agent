@@ -12,12 +12,12 @@ import { AppStoreState } from '@/types/app-store';
 // Crete a new version on App Store Connect / Google Play
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { userId, teamId, session, appStoreConnectJWT } =
       await validateTeamAccess(request);
-    const { appId } = params;
+    const { appId } = await params;
     const { versionString } = await request.json();
 
     if (!versionString || !appId) {

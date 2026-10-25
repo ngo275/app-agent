@@ -17,11 +17,11 @@ export const maxDuration = 60;
 // Update App Store Connect with the data in the database.
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string } }
+  { params }: { params: Promise<{ teamId: string; appId: string }> }
 ) {
   try {
     const { teamId, appStoreConnectJWT } = await validateTeamAccess(request);
-    const { appId } = params;
+    const { appId } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({

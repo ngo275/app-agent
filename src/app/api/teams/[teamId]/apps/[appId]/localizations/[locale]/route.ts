@@ -16,11 +16,13 @@ import {
 // Add a new locale on App Store Connect
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; locale: LocaleCode } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; locale: string }> }
 ) {
   try {
     const { appStoreConnectJWT, teamId } = await validateTeamAccess(request);
-    const { appId, locale } = params;
+    const { appId, locale } = await params;
 
     // Verify app belongs to team
     const app = await prisma.app.findFirst({

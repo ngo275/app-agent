@@ -11,11 +11,13 @@ export const maxDuration = 180;
 // Submit a pre-release version for review
 export async function POST(
   request: Request,
-  { params }: { params: { teamId: string; appId: string; versionId: string } }
+  {
+    params,
+  }: { params: Promise<{ teamId: string; appId: string; versionId: string }> }
 ) {
   try {
     const { teamId, appStoreConnectJWT } = await validateTeamAccess(request);
-    const { appId, versionId } = params;
+    const { appId, versionId } = await params;
 
     const app = await prisma.app.findFirst({
       where: {

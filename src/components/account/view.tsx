@@ -6,6 +6,7 @@ import { BillingSettings } from '@/components/account/bill-settings';
 import { motion } from 'framer-motion';
 import { DeleteAccount } from '@/components/account/delete-account';
 import { useTranslations } from 'next-intl';
+import { NEXT_PUBLIC_FREE_PLAN_ENABLED } from '@/lib/config';
 
 export default function AccountSettingsView() {
   const t = useTranslations('account');
@@ -25,7 +26,7 @@ export default function AccountSettingsView() {
       <div className="space-y-6">
         <AccountInfo />
         <TeamSettings />
-        <BillingSettings />
+        {NEXT_PUBLIC_FREE_PLAN_ENABLED !== 'true' && <BillingSettings />}
         <DeleteAccount />
       </div>
     </div>

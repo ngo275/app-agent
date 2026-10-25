@@ -40,9 +40,26 @@ export default async function AppMiddleware(req: NextRequest) {
 
   // AUTHENTICATED if the path is /login, redirect to "/dashboard"
   if (token?.email && path === '/login') {
-    const nextPath = url.searchParams.get('next') || '/dashboard'; // Default redirection to "/dashboard" if no next parameter
-    return NextResponse.redirect(
-      new URL(decodeURIComponent(nextPath), req.url)
-    );
+    let destination = new URL('/dashboard', req.url);
+    try {
+      const path = decodeURIComponent(
+        url.searchParams.get('next') || '/dashboard'
+      );
+      if (
+        path.startsWith('/') &&
+        !path.startsWith('//') &&
+        !path.includes('\\')
+      ) {
+        const requested = new URL(path, req.url);
+        const isDashboard =
+          requested.pathname === '/dashboard' ||
+          requested.pathname.startsWith('/dashboard/');
+        if (requested.origin === url.origin && isDashboard)
+          destination = requested;
+      }
+    } catch {
+      // Invalid or malformed redirect input falls back to the dashboard.
+    }
+    return NextResponse.redirect(destination);
   }
 }

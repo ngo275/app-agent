@@ -14,7 +14,7 @@ export const maxDuration = 20;
 // The latest data of App Store Connect must be imported by the `import` endpoint.
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const { teamId } = await validateTeamAccess(request);
